@@ -1,0 +1,8 @@
+{
+  "name": "ponkr",
+  "version": "0.1.0",
+  "description": "Ponkr CLI — launch and research tokens from your terminal",
+  "type": "module",
+  "bin": { "ponkr": "./ponkr.mjs" },
+  "engines": { "node": ">=18" }
+}
