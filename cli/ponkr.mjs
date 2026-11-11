@@ -26,7 +26,7 @@ const f = flags(rest);
 try {
   switch (cmd) {
     case "launches": {
-      const j = await api(`/api/v1/token-launches?sort=${f.sort || "new"}&limit=${f.limit || 20}`);
+      const j = await api(`/api/v1/token-launches?sort=${f.sort || "latest"}&limit=${f.limit || 20}`);
       for (const l of j.launches) console.log(`${("$" + l.symbol).padEnd(12)} ${usd(l.marketCapUsd).padStart(10)}  ${l.graduated ? "graduated" : l.bondingProgress.toFixed(1) + "%"}  ${l.tokenAddress}`);
       break;
     }
@@ -75,7 +75,7 @@ try {
       break;
     }
     default:
-      console.log(`ponkr <command>\n  launches [--sort new|mcap|progress|graduated] [--limit 20]\n  token <ticker|address>\n  launch --name --symbol --image [--fee-recipient] [--description] [--tax]\n  fees <wallet>\n  prompt "<text>"\n\nenv: PONKR_HOST, PONKR_API_KEY`);
+      console.log(`ponkr <command>\n  launches [--sort latest|mcap|progress|graduated] [--limit 20]\n  token <ticker|address>\n  launch --name --symbol --image [--fee-recipient] [--description] [--tax]\n  fees <wallet>\n  prompt "<text>"\n\nenv: PONKR_HOST, PONKR_API_KEY`);
   }
 } catch (e) {
   console.error("error:", e.message);

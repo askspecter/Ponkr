@@ -10,7 +10,7 @@ import { CLUB } from "@/lib/config";
 import { fmtNum } from "@/lib/format";
 
 const free = ["5 agent messages per day", "Research, trade and track your wallet", "100 API requests per day"];
-const perks = ["Launch tokens from chat, the launch form, the API, Telegram and X", "Unlimited agent messages", "1,000 API requests per day", "Early access to new features"];
+const perks = ["Launch tokens from chat, the launch form, the API, Telegram and X", "Unlimited agent messages", "1,000 API requests per day", "Early access to upcoming features"];
 
 export default function Club() {
   const { authenticated } = useAuth();

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PageHeader, PageShell, Segmented } from "@/components/Page";
 import { useState } from "react";
 import { SignInButton } from "@/components/Providers";
 import { useLaunches } from "@/components/LiveLaunches";
@@ -10,11 +11,11 @@ import { useTxRunner } from "@/hooks/useTxRunner";
 import { EXPLORER } from "@/lib/config";
 import { fmtUsd } from "@/lib/format";
 
-const SORTS = [["mcap", "Top"], ["progress", "Graduating"], ["new", "New"]] as const;
+const SORTS = [["mcap", "Market cap"], ["progress", "Graduating"], ["latest", "Latest"]] as const;
 const AMOUNTS = ["0.001", "0.005", "0.01"];
 
 export default function Trade() {
-  const [sort, setSort] = useState<string>("mcap");
+  const [sort, setSort] = useState<(typeof SORTS)[number][0]>("mcap");
   const [amount, setAmount] = useState(AMOUNTS[1]);
   const { data, isLoading } = useLaunches(sort, 30);
   const { address, authenticated } = useAuth();
@@ -39,24 +40,19 @@ export default function Trade() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="display text-4xl font-bold">Trade</h1>
-          <p className="text-sm text-muted">One tap buys on the bonding curve. Your wallet confirms each one.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="label mb-0">Size</span>
-          {AMOUNTS.map((a) => (
-            <button key={a} onClick={() => setAmount(a)} className={`mono rounded border px-2.5 py-1 text-xs ${amount === a ? "border-acid bg-acid text-black" : "border-line text-muted"}`}>{a} ETH</button>
-          ))}
-        </div>
-      </div>
-      <div className="mt-6 flex gap-1">
-        {SORTS.map(([k, l]) => (
-          <button key={k} onClick={() => setSort(k)} className={`mono rounded px-3 py-1.5 text-xs ${sort === k ? "bg-panel-2 text-fg" : "text-muted"}`}>{l}</button>
-        ))}
-      </div>
+    <PageShell>
+      <PageHeader
+        eyebrow="Trade"
+        title="One tap buys"
+        description="Buy into active bonding curves with a single confirmation. Pick a size, then tap a token."
+        actions={
+          <div className="flex items-center gap-3">
+            <span className="label mb-0">Size</span>
+            <Segmented value={amount} options={AMOUNTS.map((a) => [a, `${a} ETH`] as const)} onChange={setAmount} />
+          </div>
+        }
+      />
+      <div className="mb-4"><Segmented value={sort} options={SORTS} onChange={setSort} /></div>
       {msg && (
         <div className={`card mt-4 p-3 text-sm ${msg.ok ? "text-up" : "text-down"}`}>
           {msg.text} {msg.hash && <a href={`${EXPLORER}/tx/${msg.hash}`} target="_blank" rel="noreferrer" className="underline">view</a>}
@@ -87,6 +83,6 @@ export default function Trade() {
           </div>
         ))}
       </div>
-    </div>
+    </PageShell>
   );
 }

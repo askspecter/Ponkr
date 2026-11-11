@@ -1,13 +1,17 @@
+import { PageHeader, PageShell } from "@/components/Page";
 import { LaunchForm } from "./LaunchForm";
 
 export const metadata = { title: "Launch a token | Ponkr" };
 
 export default function Page() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="display text-4xl font-bold">Launch a token</h1>
-      <p className="mt-1 text-muted">Fixed 1B supply · fair bonding curve · auto-graduates to a locked Uniswap v4 pool. Or just ask the <a href="/chat" className="text-accent underline">agent</a>.</p>
+    <PageShell>
+      <PageHeader
+        eyebrow="Launch"
+        title="Launch a token"
+        description={<>One billion fixed supply, a fair bonding curve, and automatic graduation to a locked Uniswap v4 pool. Prefer to talk it through? Ask the <a href="/chat" className="text-fg underline decoration-accent underline-offset-4">agent</a>.</>}
+      />
       <LaunchForm />
-    </div>
+    </PageShell>
   );
 }

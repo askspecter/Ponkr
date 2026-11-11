@@ -97,7 +97,7 @@ export function LaunchForm() {
 
   const img = preview || ipfsToHttp(f.logo);
   return (
-    <form onSubmit={submit} className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
+    <form onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_340px]">
       <div className="card space-y-5 p-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <div><label className="label">Name</label><input className="input" required maxLength={32} value={f.name} onChange={set("name")} placeholder="Moon Cat" /></div>
@@ -106,7 +106,7 @@ export function LaunchForm() {
         <div>
           <label className="label">Logo</label>
           <div className="flex items-center gap-4">
-            <label className="flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-dashed border-line bg-panel-2 text-xs text-muted hover:border-accent">
+            <label className="flex h-24 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-md border border-dashed border-line bg-panel-2 text-xs text-muted hover:border-accent">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {img ? <img src={img} alt="" className="h-full w-full object-cover" /> : uploading ? "Uploading…" : "Upload"}
               <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
@@ -118,7 +118,7 @@ export function LaunchForm() {
           </div>
         </div>
         <div><label className="label">Description</label><textarea className="input" rows={3} maxLength={500} value={f.description} onChange={set("description")} placeholder="What's the story?" /></div>
-        <details className="rounded-xl border border-line p-4" open>
+        <details className="rounded-md border border-line p-4" open>
           <summary className="cursor-pointer text-sm font-semibold">Socials (optional)</summary>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <input className="input" value={f.twitter} onChange={set("twitter")} placeholder="X profile URL" />
@@ -128,7 +128,7 @@ export function LaunchForm() {
             <input className="input" value={f.farcaster} onChange={set("farcaster")} placeholder="Farcaster" />
           </div>
         </details>
-        <details className="rounded-xl border border-line p-4" open>
+        <details className="rounded-md border border-line p-4" open>
           <summary className="cursor-pointer text-sm font-semibold">Fees</summary>
           <div className="mt-4 space-y-4">
             <div>
@@ -159,10 +159,10 @@ export function LaunchForm() {
         <div className="card space-y-4 p-5">
           <div className="label">Launch mode</div>
           <div className="grid grid-cols-2 gap-2">
-            <button type="button" onClick={() => setF({ ...f, mode: "wallet" })} className={`rounded-xl border p-3 text-left text-xs ${f.mode === "wallet" ? "border-accent" : "border-line"}`}>
+            <button type="button" onClick={() => setF({ ...f, mode: "wallet" })} className={`rounded-md border p-3 text-left text-xs ${f.mode === "wallet" ? "border-accent" : "border-line"}`}>
               <div className="font-semibold text-sm">My wallet</div>Pay ~0.0005 ETH + gas. Optional first buy.
             </button>
-            <button type="button" disabled={!cfg?.sponsoredLaunches} onClick={() => setF({ ...f, mode: "sponsored" })} className={`rounded-xl border p-3 text-left text-xs disabled:opacity-40 ${f.mode === "sponsored" ? "border-accent" : "border-line"}`}>
+            <button type="button" disabled={!cfg?.sponsoredLaunches} onClick={() => setF({ ...f, mode: "sponsored" })} className={`rounded-md border p-3 text-left text-xs disabled:opacity-40 ${f.mode === "sponsored" ? "border-accent" : "border-line"}`}>
               <div className="font-semibold text-sm">Gasless</div>{cfg?.sponsoredLaunches ? "We pay the launch. Sign a message." : "Unavailable"}
             </button>
           </div>

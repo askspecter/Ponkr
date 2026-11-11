@@ -75,7 +75,7 @@ export function TradePanel({ t }: { t: TokenView }) {
 
   return (
     <div className="card p-5">
-      <div className="grid grid-cols-2 gap-1 rounded-xl bg-panel-2 p-1">
+      <div className="grid grid-cols-2 gap-1 rounded-md bg-panel-2 p-1">
         {(["buy", "sell"] as const).map((s) => (
           <button key={s} onClick={() => { setSide(s); setAmount(""); }} className={`rounded-lg py-2 text-sm font-semibold capitalize ${side === s ? (s === "buy" ? "bg-up text-black" : "bg-down text-black") : "text-muted"}`}>{s}</button>
         ))}

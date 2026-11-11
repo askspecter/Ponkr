@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState, PageHeader, PageShell } from "@/components/Page";
+
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useSignMessage } from "wagmi";
@@ -34,12 +36,12 @@ export default function ApiKeys() {
     }
   }
 
-  if (!address) return <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center"><h1 className="display text-3xl font-bold">API keys</h1><p className="text-sm text-muted">Connect a wallet to manage keys.</p><SignInButton /></div>;
+  const header = <PageHeader eyebrow="Developers" title="API keys" description={<>Authenticate the Agent API, the Launch API and the CLI. Read the <a className="text-fg underline decoration-accent underline-offset-4" href="/docs#api">API documentation</a>.</>} />;
+  if (!address) return <PageShell narrow>{header}<EmptyState title="Sign in to manage keys" description="Keys are tied to your wallet. Creating one only asks for a free signature." action={<SignInButton />} /></PageShell>;
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="display text-4xl font-bold">API keys</h1>
-      <p className="text-sm text-muted">Use keys with the Agent API, launch API and CLI. See the <a className="text-accent underline" href="/docs#api">docs</a>.</p>
-      <div className="card mt-6 flex gap-2 p-4">
+    <PageShell narrow>
+      {header}
+      <div className="card flex gap-2 p-4">
         <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Key name" />
         <button className="btn btn-primary shrink-0" onClick={() => call({ name })}>Create key</button>
       </div>
@@ -59,6 +61,6 @@ export default function ApiKeys() {
         ))}
         {keys.data && !keys.data.keys.length && <p className="p-6 text-center text-sm text-muted">No keys yet.</p>}
       </div>
-    </div>
+    </PageShell>
   );
 }

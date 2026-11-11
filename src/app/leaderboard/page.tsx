@@ -1,5 +1,7 @@
 "use client";
 
+import { PageHeader, PageShell, Segmented } from "@/components/Page";
+
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
@@ -14,13 +16,14 @@ export default function Leaderboard() {
   const [tab, setTab] = useState<"tokens" | "creators">("tokens");
   const { data, isLoading } = useQuery({ queryKey: ["lb"], queryFn: async () => (await (await fetch("/api/leaderboard")).json()) as LB, refetchInterval: 60_000 });
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="display text-4xl font-bold">Leaderboard</h1>
-      <p className="text-sm text-muted">Top tokens and creators by market cap.</p>
-      <div className="mt-6 flex gap-2">
-        {(["tokens", "creators"] as const).map((k) => <button key={k} onClick={() => setTab(k)} className={`rounded-full border px-4 py-1.5 text-sm capitalize ${tab === k ? "border-accent" : "border-line text-muted"}`}>{k}</button>)}
-      </div>
-      <div className="card mt-6 overflow-x-auto">
+    <PageShell>
+      <PageHeader
+        eyebrow="Leaderboard"
+        title="The biggest names on the launchpad"
+        description="Tokens ranked by market cap, and creators ranked by the combined value of everything they have launched."
+        actions={<Segmented value={tab} options={[["tokens", "Tokens"], ["creators", "Creators"]] as const} onChange={setTab} />}
+      />
+      <div className="card overflow-x-auto">
         {isLoading ? <div className="h-96 animate-pulse" /> : tab === "tokens" ? (
           <table className="w-full min-w-[640px] text-sm">
             <thead className="text-xs text-muted"><tr className="text-left"><th className="px-4 py-3">#</th><th>Token</th><th>Price</th><th>Market cap</th><th>Bonded</th><th className="pr-4">Creator</th></tr></thead>
@@ -54,6 +57,6 @@ export default function Leaderboard() {
           </table>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }

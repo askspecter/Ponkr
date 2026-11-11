@@ -45,12 +45,13 @@ export function toView(l: Launch, live: LiveState, px: Px | number): TokenView {
   };
 }
 
-export type SortKey = "new" | "mcap" | "progress" | "graduated" | "app";
+export type SortKey = "new" | "latest" | "mcap" | "progress" | "graduated" | "app";
 
 export async function listTokens(opts: { sort?: SortKey; q?: string; limit?: number; offset?: number; creator?: string }) {
   await sync({ wait: allLaunches().length === 0 });
   await refreshViaApp();
-  const { sort = "new", q, limit = 50, offset = 0, creator } = opts;
+  const { q, limit = 50, offset = 0, creator } = opts;
+  const sort = !opts.sort || opts.sort === "latest" ? "new" : opts.sort;
   let ls = allLaunches().slice();
   if (q) {
     const s = q.toLowerCase().replace(/^\$/, "");

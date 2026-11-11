@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState, PageHeader, PageShell } from "@/components/Page";
+
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { formatUnits } from "viem";
@@ -31,19 +33,17 @@ export default function Fees() {
   }
   if (!address) {
     return (
-      <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center">
-        <h1 className="display text-3xl font-bold">Creator fees</h1>
-        <p className="text-sm text-muted">Connect the wallet that receives your creator fees.</p>
-        <SignInButton />
-      </div>
+      <PageShell>
+        <PageHeader eyebrow="Creator fees" title="Your earnings" description="Every trade on your tokens pays you. Track and claim it all here." />
+        <EmptyState title="Sign in to see your fees" description="Use the wallet that receives creator fees for your tokens." action={<SignInButton />} />
+      </PageShell>
     );
   }
   const busy = status.state === "signing" || status.state === "pending";
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="display text-4xl font-bold">Creator fees</h1>
-      <p className="text-sm text-muted">Your share of trading fees and creator tax accrues on each token&apos;s curve, gets swept into escrow, and is yours to claim.</p>
-      <div className="card glow mt-6 flex flex-wrap items-center justify-between gap-4 p-6">
+    <PageShell>
+      <PageHeader eyebrow="Creator fees" title="Your earnings" description="Your share of trading fees and creator tax accrues on each token, moves into escrow when swept, and is yours to claim at any time." />
+      <div className="card-hard flex flex-wrap items-center justify-between gap-4 p-6">
         <div>
           <div className="label">Claimable now</div>
           <div className="display text-4xl font-bold">{data ? `${fmtNum(Number(formatUnits(BigInt(data.claimableEth), 18)), 6)} ETH` : "…"}</div>
@@ -76,6 +76,6 @@ export default function Fees() {
         )}
         {data && !data.tokens.length && <p className="p-8 text-center text-sm text-muted">No tokens launched from this wallet. Fees for tokens where you&apos;re only the fee recipient still show in &ldquo;Claimable now&rdquo;. <Link href="/launch" className="text-accent underline">Launch one</Link>.</p>}
       </div>
-    </div>
+    </PageShell>
   );
 }

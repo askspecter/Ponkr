@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState, PageHeader, PageShell } from "@/components/Page";
+
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { formatUnits } from "viem";
@@ -21,12 +23,12 @@ export default function Portfolio() {
   });
   if (!address) return <Empty />;
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="display text-4xl font-bold">Portfolio</h1>
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <div className="card p-5"><div className="label">Total value</div><div className="text-2xl font-bold">{data ? fmtUsd(data.totalUsd) : "…"}</div></div>
-        <div className="card p-5"><div className="label">ETH</div><div className="text-2xl font-bold">{data ? fmtNum(Number(formatUnits(BigInt(data.eth), 18)), 4) : "…"}</div><div className="text-xs text-muted">{data && fmtUsd(data.ethUsd)}</div></div>
-        <div className="card p-5"><div className="label">Positions</div><div className="text-2xl font-bold">{data?.positions.length ?? "…"}</div></div>
+    <PageShell>
+      <PageHeader eyebrow="Wallet" title="Your portfolio" description="ETH and every launchpad token in your wallet, valued live." />
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="card p-5"><div className="label">Total value</div><div className="display text-3xl font-bold">{data ? fmtUsd(data.totalUsd) : "…"}</div></div>
+        <div className="card p-5"><div className="label">ETH</div><div className="display text-3xl font-bold">{data ? fmtNum(Number(formatUnits(BigInt(data.eth), 18)), 4) : "…"}</div><div className="text-xs text-muted">{data && fmtUsd(data.ethUsd)}</div></div>
+        <div className="card p-5"><div className="label">Positions</div><div className="display text-3xl font-bold">{data?.positions.length ?? "…"}</div></div>
       </div>
       <div className="card mt-6 overflow-x-auto">
         {isLoading ? <div className="h-64 animate-pulse" /> : (
@@ -46,16 +48,15 @@ export default function Portfolio() {
         )}
         {data && !data.positions.length && <p className="p-8 text-center text-sm text-muted">No launchpad tokens yet. <Link href="/launches" className="text-accent underline">Find one</Link>.</p>}
       </div>
-    </div>
+    </PageShell>
   );
 }
 
 function Empty() {
   return (
-    <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center">
-      <h1 className="display text-3xl font-bold">Connect your wallet</h1>
-      <p className="text-sm text-muted">See your balances and launchpad positions.</p>
-      <SignInButton />
-    </div>
+    <PageShell>
+      <PageHeader eyebrow="Wallet" title="Your portfolio" description="ETH and every launchpad token in your wallet, valued live." />
+      <EmptyState title="Sign in to see your wallet" description="Your balances and positions appear here once you sign in." action={<SignInButton />} />
+    </PageShell>
   );
 }

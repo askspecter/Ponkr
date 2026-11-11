@@ -7,7 +7,7 @@ import { TokenAvatar, TokenCard } from "./TokenBits";
 import { fmtUsd } from "@/lib/format";
 import type { TokenView } from "@/lib/types";
 
-export function useLaunches(sort = "new", limit = 24, q = "") {
+export function useLaunches(sort = "latest", limit = 24, q = "") {
   return useQuery({
     queryKey: ["launches", sort, limit, q],
     queryFn: async () => {
@@ -19,17 +19,17 @@ export function useLaunches(sort = "new", limit = 24, q = "") {
   });
 }
 
-export function LiveGrid({ sort = "new", limit = 8 }: { sort?: string; limit?: number }) {
+export function LiveGrid({ sort = "latest", limit = 8 }: { sort?: string; limit?: number }) {
   const { data, isLoading, error } = useLaunches(sort, limit);
   if (error) return <div className="card p-6 text-sm text-down">{(error as Error).message}</div>;
   if (isLoading) return <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{Array.from({ length: limit }).map((_, i) => <div key={i} className="card h-52 animate-pulse" />)}</div>;
   return <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{data!.items.map((t) => <TokenCard key={t.token} t={t} />)}</div>;
 }
 
-const TABS = [["new", "Fresh"], ["progress", "Graduating"], ["mcap", "Biggest"]] as const;
+const TABS = [["latest", "Fresh"], ["progress", "Graduating"], ["mcap", "Biggest"]] as const;
 
 export function DiscoverTabs() {
-  const [tab, setTab] = useState<string>("new");
+  const [tab, setTab] = useState<string>("latest");
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">

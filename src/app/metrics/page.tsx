@@ -1,5 +1,7 @@
 "use client";
 
+import { PageHeader, PageShell } from "@/components/Page";
+
 import { useQuery } from "@tanstack/react-query";
 import { fmtNum, fmtUsd } from "@/lib/format";
 
@@ -21,10 +23,9 @@ export default function Metrics() {
       ]
     : [];
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <h1 className="display text-4xl font-bold">Metrics</h1>
-      <p className="text-sm text-muted">Launchpad activity over the indexed window.</p>
-      <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line md:grid-cols-4">
+    <PageShell>
+      <PageHeader eyebrow="Metrics" title="Launchpad activity" description="Network wide numbers for the last two weeks of launches, refreshed every minute." />
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-line bg-line md:grid-cols-4">
         {(tiles.length ? tiles : Array.from({ length: 8 }).map(() => ["…", "…"])).map(([k, v], i) => (
           <div key={i} className="bg-panel p-5"><div className="label">{k}</div><div className="display text-2xl font-bold">{v}</div></div>
         ))}
@@ -41,6 +42,6 @@ export default function Metrics() {
           ))}
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

@@ -87,12 +87,12 @@ async function callModel(system: string, messages: Anthropic.MessageParam[]): Pr
 const tools: Anthropic.Tool[] = [
   {
     name: "search_tokens",
-    description: "Search launchpad tokens by name, ticker or address, or list them. sort: new (latest launches), mcap (largest market cap), progress (closest to graduating), graduated, app (launched via this app).",
+    description: "Search launchpad tokens by name, ticker or address, or list them. sort: latest (most recent launches), mcap (largest market cap), progress (closest to graduating), graduated, app (launched via this app).",
     input_schema: {
       type: "object",
       properties: {
         query: { type: "string", description: "Optional name/ticker/address filter" },
-        sort: { type: "string", enum: ["new", "mcap", "progress", "graduated", "app"] },
+        sort: { type: "string", enum: ["latest", "mcap", "progress", "graduated", "app"] },
         limit: { type: "integer", minimum: 1, maximum: 20 },
       },
       required: [],
@@ -216,7 +216,7 @@ function logoSvg(symbol: string) {
 async function runTool(name: string, input: Record<string, unknown>, ctx: AgentContext, actions: AgentAction[]): Promise<unknown> {
   switch (name) {
     case "search_tokens": {
-      const r = await listTokens({ q: input.query as string | undefined, sort: (input.sort as never) ?? "new", limit: Math.min(Number(input.limit ?? 8), 20) });
+      const r = await listTokens({ q: input.query as string | undefined, sort: (input.sort as never) ?? "latest", limit: Math.min(Number(input.limit ?? 8), 20) });
       return { total: r.total, tokens: r.items.map(summarize) };
     }
     case "get_token": {

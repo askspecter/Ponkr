@@ -10,6 +10,7 @@ import {
 import { BRAND } from "@/lib/config";
 import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "./Logo";
+import { SiteFooter } from "./Page";
 
 type Item = { href: string; label: string; icon: React.ElementType; badge?: string; soon?: boolean; external?: boolean; highlight?: boolean };
 type Section = { title: string; items: Item[]; collapsed?: boolean };
@@ -20,17 +21,17 @@ const SECTIONS: Section[] = [
     items: [
       { href: "/chat", label: "Chat", icon: MessageSquare },
       { href: "/portfolio", label: "Wallet", icon: Wallet },
-      { href: "/trade", label: "Trade", icon: CandlestickChart, badge: "New" },
+      { href: "/trade", label: "Trade", icon: CandlestickChart },
       { href: "#", label: "Automations", icon: Clock, soon: true },
     ],
   },
   {
     title: "Explore",
     items: [
-      { href: "/launches", label: "Discover tokens", icon: Search, highlight: true },
+      { href: "/launches", label: "Discover tokens", icon: Search },
       { href: "/launch", label: "Launch a token", icon: Rocket, badge: "Club" },
       { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
-      { href: "/metrics", label: "Metrics", icon: BarChart3, badge: "New" },
+      { href: "/metrics", label: "Metrics", icon: BarChart3 },
       { href: "/fees", label: "Creator fees", icon: Coins },
     ],
   },
@@ -164,7 +165,7 @@ function Sidebar({ onNav }: { onNav: () => void }) {
           onClick={() => { onNav(); router.push(`/chat?new=${Date.now()}`); }}
           className="flex w-full items-center gap-2 rounded-md border border-line bg-panel-2 px-3 py-2.5 text-sm font-semibold hover:border-acid/60"
         >
-          <Plus size={16} /> New chat
+          <Plus size={16} /> Start a chat
         </button>
         {SECTIONS.map((s) => <NavSection key={s.title} s={s} path={path} onNav={onNav} />)}
       </div>
@@ -203,7 +204,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <main>{children}</main>
+      <main className="flex min-h-[calc(100dvh-3.5rem)] flex-col lg:min-h-dvh">
+        <div className="flex-1">{children}</div>
+        {!path.startsWith("/chat") && <SiteFooter />}
+      </main>
     </div>
   );
 }
