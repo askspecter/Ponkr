@@ -65,10 +65,15 @@ export const GRADUATED_TICK_SPACING = 200;
 export const TOTAL_SUPPLY = 1_000_000_000n * 10n ** 18n;
 export const DEFAULT_LAUNCH_CONFIG_ID = 0n;
 
+/**
+ * Club = wallets holding at least `minHold` of the official token. Only Club members can launch.
+ * Until the official token address is set, only CLUB_ALLOWLIST wallets (server env) count as Club,
+ * so the team can launch the official token itself.
+ */
 export const CLUB = {
-  priceEth: process.env.NEXT_PUBLIC_CLUB_PRICE_ETH || "0.006",
-  periodDays: 30,
-  treasury: (process.env.NEXT_PUBLIC_TREASURY_ADDRESS || "") as Address | "",
+  token: (process.env.NEXT_PUBLIC_OFFICIAL_TOKEN_ADDRESS || "") as Address | "",
+  symbol: process.env.NEXT_PUBLIC_OFFICIAL_TOKEN_SYMBOL || "PONKR",
+  minHold: Number(process.env.NEXT_PUBLIC_CLUB_MIN_HOLD || 1_000_000),
   freeMessagesPerDay: Number(process.env.FREE_MESSAGES_PER_DAY || 5),
   apiDailyFree: 100,
   apiDailyClub: 1000,

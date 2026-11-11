@@ -1,6 +1,10 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { Lock } from "lucide-react";
+import { useClub } from "@/hooks/useClub";
+import { CLUB } from "@/lib/config";
+import { fmtNum } from "@/lib/format";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { isAddress } from "viem";
@@ -13,11 +17,12 @@ import { sponsoredLaunchMessage } from "@/lib/messages";
 import { EXPLORER, ipfsToHttp } from "@/lib/config";
 
 export function LaunchForm() {
-  const { address } = useAuth();
+  const { address, authHeaders } = useAuth();
   const router = useRouter();
   const { signMessageAsync } = useSignMessage();
   const { run, status } = useTxRunner();
-  const { data: cfg } = useQuery({ queryKey: ["club-status"], queryFn: async () => (await (await fetch("/api/club/status")).json()) as { sponsoredLaunches: boolean } });
+  const { data: club } = useClub();
+  const cfg = club;
 
   const [f, setF] = useState({ name: "", symbol: "", description: "", logo: "", twitter: "", telegram: "", website: "", discord: "", farcaster: "", feeRecipient: "", creatorTax: 1, buyback: false, initialBuy: "", mode: "wallet" as "wallet" | "sponsored" });
   const [preview, setPreview] = useState<string>();
@@ -76,7 +81,7 @@ export function LaunchForm() {
         setDone({ token: j.token, tx: j.txHash });
         if (j.token) router.push(`/token/${j.token}?new=1`);
       } else {
-        const r = await fetch("/api/launch/prepare", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...body, initialBuyEth: f.initialBuy || undefined, sender: address }) });
+        const r = await fetch("/api/launch/prepare", { method: "POST", headers: { "content-type": "application/json", ...(await authHeaders()) }, body: JSON.stringify({ ...body, initialBuyEth: f.initialBuy || undefined, sender: address }) });
         const j = await r.json();
         if (!r.ok) throw new Error(j.error);
         const hash = await run([j.tx]);
@@ -169,7 +174,15 @@ export function LaunchForm() {
             </div>
           )}
           {!address ? (
-            <SignInButton />
+            <SignInButton className="btn btn-primary w-full" />
+          ) : club && !club.club ? (
+            <div className="rounded-md border border-acid/40 bg-acid/5 p-4 text-sm">
+              <div className="flex items-center gap-2 font-semibold text-acid"><Lock size={15} /> Club members only</div>
+              <p className="mt-1 text-muted">
+                Hold {CLUB.minHold.toLocaleString("en-US")} ${CLUB.symbol} to launch. You hold {fmtNum(club.balance, 0)}.
+              </p>
+              <Link href="/club" className="btn btn-acid mt-3 w-full">Join Club</Link>
+            </div>
           ) : (
             <button className="btn btn-primary w-full" disabled={busy || uploading || !f.logo}>
               {busy ? (status.state === "signing" ? "Confirm in wallet…" : status.state === "pending" ? "Launching…" : "Preparing…") : `Launch $${f.symbol || "TOKEN"}`}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { HeroPrompt } from "@/components/HeroPrompt";
 import { DiscoverTabs, Stats, Ticker } from "@/components/LiveLaunches";
 import { Logo } from "@/components/Logo";
+import { CLUB } from "@/lib/config";
 
 const steps = [
   ["01", "Say it", "Give the agent a name, a ticker and an image. Or use the launch form."],
@@ -64,12 +65,12 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 pb-16 pt-4">
         <div className="card-hard flex flex-col items-start justify-between gap-6 p-8 md:flex-row md:items-center">
           <div>
-            <h2 className="display text-3xl font-bold">Five free messages a day.</h2>
-            <p className="mt-1 text-muted">Club unlocks unlimited chat, higher API limits and early features.</p>
+            <h2 className="display text-3xl font-bold">Launching is for the Club.</h2>
+            <p className="mt-1 text-muted">Hold {CLUB.minHold.toLocaleString("en-US")} ${CLUB.symbol} to launch tokens, chat without limits and get higher API limits.</p>
           </div>
           <div className="flex gap-3">
             <Link href="/chat" className="btn btn-primary">Open chat</Link>
-            <Link href="/club" className="btn btn-ghost">See Club</Link>
+            <Link href="/club" className="btn btn-ghost">Join Club</Link>
           </div>
         </div>
         <p className="mono mt-10 text-center text-[11px] text-muted">Tokens are highly speculative and can go to zero. Nothing here is financial advice.</p>

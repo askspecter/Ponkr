@@ -1,48 +1,87 @@
 import "server-only";
 import crypto from "node:crypto";
-import { getAddress, parseEther, verifyMessage, type Address, type Hex } from "viem";
+import { formatUnits, getAddress, isAddress, parseUnits, verifyMessage, type Address, type Hex } from "viem";
+import { tokenAbi } from "../abis";
 import { CLUB } from "../config";
 import { apiKeyMessage } from "../messages";
 import { rpc } from "./rpc";
 import { load, save } from "./store";
 
-// ---------- Club membership ----------
+// ---------- Club membership (token gated) ----------
 
-type Club = Record<string, { expiresAt: number; txs: string[] }>;
+const ALLOWLIST = new Set(
+  (process.env.CLUB_ALLOWLIST || "")
+    .split(",")
+    .map((x) => x.trim().toLowerCase())
+    .filter(Boolean),
+);
+const holdCache = new Map<string, { at: number; balance: bigint }>();
+let decimalsCache: number | undefined;
 
-export function clubExpiry(address?: string): number {
-  if (!address) return 0;
-  return load<Club>("club", {})[address.toLowerCase()]?.expiresAt ?? 0;
+export interface ClubStatus {
+  club: boolean;
+  /** Wallet that qualifies (or the first wallet checked). */
+  wallet?: Address;
+  /** Official token balance in whole tokens. */
+  balance: number;
+  required: number;
+  symbol: string;
+  token: string;
+  allowlisted: boolean;
 }
 
-export function isClub(address?: string) {
-  return clubExpiry(address) > Date.now();
+async function officialBalance(addr: Address): Promise<bigint> {
+  if (!CLUB.token) return 0n;
+  const key = addr.toLowerCase();
+  const hit = holdCache.get(key);
+  if (hit && Date.now() - hit.at < 30_000) return hit.balance;
+  const balance = await rpc().readContract({ address: CLUB.token as Address, abi: tokenAbi, functionName: "balanceOf", args: [addr] });
+  holdCache.set(key, { at: Date.now(), balance });
+  return balance;
 }
 
-export async function verifyClubPayment(txHash: Hex, address: Address) {
-  if (!CLUB.treasury) throw new Error("Club payments are not configured (NEXT_PUBLIC_TREASURY_ADDRESS).");
-  const club = load<Club>("club", {});
-  const used = Object.values(club).some((c) => c.txs.includes(txHash.toLowerCase()));
-  if (used) throw new Error("This payment was already used.");
-  const client = rpc();
-  const [txn, receipt] = await Promise.all([
-    client.getTransaction({ hash: txHash }),
-    client.waitForTransactionReceipt({ hash: txHash, timeout: 30_000 }),
-  ]);
-  if (receipt.status !== "success") throw new Error("Payment transaction failed.");
-  if (txn.from.toLowerCase() !== address.toLowerCase()) throw new Error("Payment must come from your connected wallet.");
-  if (!txn.to || txn.to.toLowerCase() !== CLUB.treasury.toLowerCase()) throw new Error("Payment was not sent to the treasury.");
-  const price = parseEther(CLUB.priceEth);
-  if (txn.value < price) throw new Error(`Payment must be at least ${CLUB.priceEth} ETH.`);
-  const periods = Number(txn.value / price);
-  const key = address.toLowerCase();
-  const base = Math.max(Date.now(), club[key]?.expiresAt ?? 0);
-  club[key] = {
-    expiresAt: base + periods * CLUB.periodDays * 86400_000,
-    txs: [...(club[key]?.txs ?? []), txHash.toLowerCase()],
-  };
-  save("club", club);
-  return club[key];
+async function officialDecimals() {
+  if (decimalsCache === undefined && CLUB.token) {
+    decimalsCache = Number(await rpc().readContract({ address: CLUB.token as Address, abi: tokenAbi, functionName: "decimals" }).catch(() => 18));
+  }
+  return decimalsCache ?? 18;
+}
+
+/** Club if any of the wallets holds >= CLUB.minHold official tokens (or is allowlisted). */
+export async function clubStatus(wallets: (Address | string | undefined)[]): Promise<ClubStatus> {
+  const list = wallets.filter((w): w is string => !!w && isAddress(w)).map((w) => getAddress(w));
+  const base = { required: CLUB.minHold, symbol: CLUB.symbol, token: CLUB.token };
+  const allow = list.find((w) => ALLOWLIST.has(w.toLowerCase()));
+  if (allow) return { ...base, club: true, wallet: allow, balance: 0, allowlisted: true };
+  if (!CLUB.token || !list.length) return { ...base, club: false, wallet: list[0], balance: 0, allowlisted: false };
+  const dec = await officialDecimals();
+  const need = parseUnits(String(CLUB.minHold), dec);
+  let best = { wallet: list[0], bal: 0n };
+  for (const w of list) {
+    const bal = await officialBalance(w).catch(() => 0n);
+    if (bal > best.bal) best = { wallet: w, bal };
+  }
+  return { ...base, club: best.bal >= need, wallet: best.wallet, balance: Number(formatUnits(best.bal, dec)), allowlisted: false };
+}
+
+export async function isClub(address?: string) {
+  return (await clubStatus([address])).club;
+}
+
+export function clubRequirementText() {
+  return CLUB.token
+    ? `Launching is for Club members. Hold at least ${CLUB.minHold.toLocaleString("en-US")} $${CLUB.symbol} in your wallet to join.`
+    : `Launching opens to Club members once $${CLUB.symbol} is live. Club means holding at least ${CLUB.minHold.toLocaleString("en-US")} $${CLUB.symbol}.`;
+}
+
+/** Throws a user facing error unless one of the wallets is Club. */
+export async function requireClub(wallets: (Address | string | undefined)[]) {
+  const st = await clubStatus(wallets);
+  if (!st.club) {
+    const have = st.balance ? ` You hold ${Math.floor(st.balance).toLocaleString("en-US")}.` : "";
+    throw new Error(clubRequirementText() + have);
+  }
+  return st;
 }
 
 // ---------- Daily usage limits ----------
@@ -118,7 +157,7 @@ export async function revokeApiKey(owner: Address, id: string, nonce: string, si
 }
 
 /** Resolves X-API-Key / Bearer auth and enforces daily limits. */
-export function authApiKey(req: Request) {
+export async function authApiKey(req: Request) {
   const raw =
     req.headers.get("x-api-key") ||
     req.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ||
@@ -126,7 +165,7 @@ export function authApiKey(req: Request) {
   if (!raw) return { error: "Missing API key (X-API-Key header).", status: 401 } as const;
   const rec = load<ApiKeyRecord[]>("api-keys", []).find((k) => k.hash === sha(raw) && !k.revoked);
   if (!rec) return { error: "Invalid API key.", status: 401 } as const;
-  const limit = isClub(rec.owner) ? CLUB.apiDailyClub : CLUB.apiDailyFree;
+  const limit = (await isClub(rec.owner)) ? CLUB.apiDailyClub : CLUB.apiDailyFree;
   const c = consume("api", rec.id, limit);
   if (!c.ok) return { error: `Daily API limit reached (${limit}/day).`, status: 429 } as const;
   return { key: rec, remaining: limit - c.used } as const;

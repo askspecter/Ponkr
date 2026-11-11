@@ -4,6 +4,7 @@ import { formatUnits, getAddress, isAddress, parseEther, parseUnits, type Addres
 import { BRAND, CLUB, EXPLORER } from "../config";
 import { fmtNum } from "../format";
 import { deployerEnabled, sponsoredLaunch } from "./deployer";
+import { requireClub } from "./accounts";
 import { allLaunches } from "./indexer";
 import { pinFile, pinFromUrl } from "./ipfs";
 import { ethUsd } from "./price";
@@ -20,6 +21,8 @@ export interface AgentContext {
   wallet?: Address;
   /** Stable id used for sponsored-launch quotas. */
   identity: string;
+  /** Wallets proven to belong to the caller (web: Privy session, api: key owner). */
+  verifiedWallets?: Address[];
   /** Optional image attached by the user (ipfs:// or https URL). */
   attachedImage?: string;
 }
@@ -219,6 +222,15 @@ async function runTool(name: string, input: Record<string, unknown>, ctx: AgentC
       else feeRecipient = ctx.wallet;
       if (!feeRecipient) return { error: "Need a fee recipient address (0x…) to receive creator fees. Ask the user for one." };
 
+      // Only Club members (official token holders) can launch. On social channels, where the sender
+      // has no linked wallet, the fee recipient must be the Club wallet.
+      const gateWallets = ctx.channel === "web" || ctx.channel === "api" ? ctx.verifiedWallets ?? [] : [feeRecipient];
+      try {
+        await requireClub(gateWallets);
+      } catch (e) {
+        return { error: (e as Error).message, clubPage: "/club" };
+      }
+
       let logo = (input.image_url as string | undefined) || ctx.attachedImage;
       try {
         if (logo && logo.startsWith("http")) logo = await pinFromUrl(logo);
@@ -310,6 +322,7 @@ Rules:
 - Be concise: short sentences, numbers formatted (e.g. $12.3K), tickers with $.
 - Never use em dashes, en dashes or hyphens as punctuation. Use commas, periods or colons instead.
 - Free plan: ${CLUB.freeMessagesPerDay} messages/day. ${BRAND.name} Club removes the limit.
+- Only Club members can launch tokens. Club means holding at least ${CLUB.minHold.toLocaleString("en-US")} $${CLUB.symbol}. If a launch is refused for this, explain it and point to /club.
 
 Channel: ${ctx.channel}. ${ctx.wallet ? `User wallet: ${ctx.wallet}.` : "No wallet connected."}${
     ctx.channel === "web" ? " In the web app, prepared transactions appear as cards with a Confirm button." : " In this channel the user cannot sign transactions; offer sponsored launches (fee recipient address required) and point to the web app for trading."

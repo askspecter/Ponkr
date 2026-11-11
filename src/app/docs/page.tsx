@@ -117,7 +117,8 @@ ponkr prompt "what's trending?"`}</Code>
           <h2>Limits & Club</h2>
           <ul className="list-disc space-y-1 pl-5">
             <li>Free: {CLUB.freeMessagesPerDay} agent messages per day, {CLUB.apiDailyFree} API requests per day.</li>
-            <li>Club ({CLUB.priceEth} ETH / {CLUB.periodDays} days): unlimited messages, {CLUB.apiDailyClub} API requests per day.</li>
+            <li>Club: hold at least {CLUB.minHold.toLocaleString("en-US")} ${CLUB.symbol}. Unlocks launching, unlimited messages and {CLUB.apiDailyClub} API requests per day.</li>
+            <li>Only Club members can launch tokens, on every channel. On X and Telegram the fee recipient wallet must be the Club wallet.</li>
             <li>Gasless launches are capped per wallet / account per day.</li>
           </ul>
         </section>

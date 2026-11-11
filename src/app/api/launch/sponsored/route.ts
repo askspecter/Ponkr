@@ -1,5 +1,6 @@
 import { getAddress, isAddress, verifyMessage, type Hex } from "viem";
 import { deployerEnabled, sponsoredLaunch } from "@/lib/server/deployer";
+import { requireClub } from "@/lib/server/accounts";
 import { sponsoredLaunchMessage } from "@/lib/messages";
 import type { LaunchInput } from "@/lib/server/tx";
 import { err, handle, json } from "@/lib/server/http";
@@ -15,6 +16,7 @@ export async function POST(req: Request) {
     const ok = await verifyMessage({ address: owner, message: sponsoredLaunchMessage(String(body.symbol), body.feeRecipient, body.nonce), signature: body.signature });
     if (!ok) return err("Invalid signature", 401);
     try {
+      await requireClub([owner]);
       return json(await sponsoredLaunch({ ...body, initialBuyEth: undefined }, `wallet:${owner.toLowerCase()}`));
     } catch (e) {
       return err((e as Error).message);

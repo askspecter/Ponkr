@@ -5,7 +5,7 @@ import { err, json } from "@/lib/server/http";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const a = authApiKey(req);
+  const a = await authApiKey(req);
   if ("error" in a) return err(a.error!, a.status);
   const { id } = await params;
   const j = getJob(id);

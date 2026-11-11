@@ -28,7 +28,7 @@ const SECTIONS: Section[] = [
     title: "Explore",
     items: [
       { href: "/launches", label: "Discover tokens", icon: Search, highlight: true },
-      { href: "/launch", label: "Launch a token", icon: Rocket },
+      { href: "/launch", label: "Launch a token", icon: Rocket, badge: "Club" },
       { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
       { href: "/metrics", label: "Metrics", icon: BarChart3, badge: "New" },
       { href: "/fees", label: "Creator fees", icon: Coins },

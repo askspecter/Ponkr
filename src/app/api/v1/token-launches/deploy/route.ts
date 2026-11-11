@@ -1,5 +1,5 @@
 import { getAddress, isAddress } from "viem";
-import { authApiKey } from "@/lib/server/accounts";
+import { authApiKey, requireClub } from "@/lib/server/accounts";
 import { deployerEnabled, sponsoredLaunch } from "@/lib/server/deployer";
 import { pinFromUrl } from "@/lib/server/ipfs";
 import { err, handle, json } from "@/lib/server/http";
@@ -11,12 +11,13 @@ import { err, handle, json } from "@/lib/server/http";
  */
 export async function POST(req: Request) {
   return handle(async () => {
-    const a = authApiKey(req);
+    const a = await authApiKey(req);
     if ("error" in a) return err(a.error!, a.status);
     if (!deployerEnabled()) return err("Sponsored launches are disabled on this server.", 503);
     const b = (await req.json()) as { name: string; symbol: string; image: string; description?: string; feeRecipient?: string; creatorTaxBps?: number; socials?: Record<string, string>; simulate?: boolean };
     const feeRecipient = b.feeRecipient && isAddress(b.feeRecipient) ? getAddress(b.feeRecipient) : a.key.owner;
     try {
+      await requireClub([a.key.owner]);
       let logo = b.image;
       if (logo?.startsWith("http")) logo = await pinFromUrl(logo);
       const r = await sponsoredLaunch(

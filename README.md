@@ -16,7 +16,7 @@ kontrak launchpad bonding-curve yang sudah live di **Robinhood Chain** (chain id
 | Leaderboard token & creator | `/leaderboard` |
 | Portfolio wallet | `/portfolio` |
 | Dashboard fee creator: sweep & klaim | `/fees` |
-| Langganan Club (bayar ETH on-chain, unlimited chat, limit API lebih tinggi) | `/club` |
+| Club berbasis kepemilikan token: hold minimal 1M token resmi. Hanya member Club yang bisa launch (semua channel), plus unlimited chat dan limit API lebih tinggi | `/club`, `src/lib/server/accounts.ts` |
 | API key (login tanda tangan wallet), Agent API (prompt → job → polling), Launch API, endpoint publik | `/api-keys`, `/docs` |
 | Bot Telegram (webhook) dan bot X (worker polling mention) | `api/telegram/webhook`, `scripts/x-bot.mjs` |
 | CLI | `cli/ponkr.mjs` |
@@ -36,7 +36,10 @@ Variabel penting (`.env.example`):
   Di dashboard Privy aktifkan metode login tersebut dan tambahkan domain Anda. Tanpa app id, app memakai wallet browser (untuk dev lokal).
 - `PINATA_JWT` : upload logo ke IPFS.
 - `DEPLOYER_PRIVATE_KEY` : wallet platform untuk launch gas-free (isi sedikit ETH di Robinhood Chain). Kosongkan untuk mematikan.
-- `NEXT_PUBLIC_TREASURY_ADDRESS` : penerima pembayaran Club.
+- `NEXT_PUBLIC_OFFICIAL_TOKEN_ADDRESS`, `NEXT_PUBLIC_OFFICIAL_TOKEN_SYMBOL`, `NEXT_PUBLIC_CLUB_MIN_HOLD` : token resmi dan syarat Club (default 1.000.000).
+  Selama alamat token resmi belum diisi, hanya wallet di `CLUB_ALLOWLIST` yang dianggap Club, supaya tim bisa me-launch token resmi itu sendiri.
+- Catatan: pembatasan ini berlaku di semua jalur Ponkr (web, agen, API, Telegram, X). Kontrak launchpad di chain sendiri tetap terbuka,
+  jadi orang yang memanggil kontrak langsung tanpa Ponkr tidak bisa dicegah, dan token itu tidak akan bertanda "Ponkr".
 - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` : lalu set webhook:
   `https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://<host>/api/telegram/webhook&secret_token=<SECRET>`
 - Bot X: isi kredensial `X_*` + `INTERNAL_SECRET`, jalankan `PONKR_HOST=https://<host> node scripts/x-bot.mjs`.

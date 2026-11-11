@@ -35,6 +35,18 @@ async function linkedWallets(userId: string): Promise<Address[]> {
   return wallets;
 }
 
+export const privyEnabled = () => Boolean(APP_ID && APP_SECRET);
+
+/**
+ * Wallets the caller provably controls. With Privy configured these come from the verified
+ * session; in local dev without Privy we trust the connected wallet the client reports.
+ */
+export async function verifiedWallets(req: Request, claimed?: string): Promise<{ user?: AuthedUser; wallets: Address[] }> {
+  const user = await authUser(req);
+  if (privyEnabled()) return { user, wallets: user?.wallets ?? [] };
+  return { user, wallets: claimed && isAddress(claimed) ? [getAddress(claimed)] : [] };
+}
+
 /** Verifies the `x-privy-token` header (Privy access token). */
 export async function authUser(req: Request): Promise<AuthedUser | undefined> {
   const token = req.headers.get("x-privy-token");
