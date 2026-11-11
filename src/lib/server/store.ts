@@ -1,12 +1,15 @@
 import "server-only";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 /**
  * Tiny JSON-file persistence. Good for a single-node deployment (VPS/Docker).
  * Swap for Postgres/Redis when running multiple instances or serverless.
  */
-const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), ".data");
+// On Vercel the project directory is read-only; only /tmp is writable (and it is per instance).
+const DATA_DIR =
+  process.env.DATA_DIR || (process.env.VERCEL ? path.join(os.tmpdir(), "ponkr-data") : path.join(process.cwd(), ".data"));
 
 const cache = new Map<string, unknown>();
 const timers = new Map<string, NodeJS.Timeout>();
