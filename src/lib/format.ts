@@ -6,7 +6,7 @@ export function shortAddr(a?: string, n = 4) {
 }
 
 export function fmtNum(n: number, max = 2) {
-  if (!isFinite(n)) return "-";
+  if (!isFinite(n)) return "n/a";
   const abs = Math.abs(n);
   if (abs >= 1e9) return (n / 1e9).toFixed(max) + "B";
   if (abs >= 1e6) return (n / 1e6).toFixed(max) + "M";
@@ -17,7 +17,7 @@ export function fmtNum(n: number, max = 2) {
 }
 
 export function fmtUsd(n: number) {
-  if (!isFinite(n)) return "-";
+  if (!isFinite(n)) return "n/a";
   if (Math.abs(n) < 0.01 && n !== 0) return "$" + n.toPrecision(3);
   return "$" + fmtNum(n);
 }

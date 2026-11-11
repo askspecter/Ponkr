@@ -1,4 +1,4 @@
-# Ponkr — AI trading agent & token launchpad (Robinhood Chain)
+# Ponkr : AI trading agent & token launchpad (Robinhood Chain)
 
 Ponkr adalah platform agen AI untuk **riset, trading, dan launch token** lewat chat, dibangun di atas
 kontrak launchpad bonding-curve yang sudah live di **Robinhood Chain** (chain id `4663`).
@@ -31,12 +31,13 @@ npm run dev                  # http://localhost:3000
 
 Variabel penting (`.env.example`):
 
-- `ANTHROPIC_API_KEY` — wajib untuk agen.
-- `NEXT_PUBLIC_WC_PROJECT_ID` — WalletConnect/Reown project id.
-- `PINATA_JWT` — upload logo ke IPFS.
-- `DEPLOYER_PRIVATE_KEY` — wallet platform untuk launch gas-free (isi sedikit ETH di Robinhood Chain). Kosongkan untuk mematikan.
-- `NEXT_PUBLIC_TREASURY_ADDRESS` — penerima pembayaran Club.
-- `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` — lalu set webhook:
+- `ANTHROPIC_API_KEY` : wajib untuk agen.
+- `NEXT_PUBLIC_PRIVY_APP_ID`, `PRIVY_APP_SECRET`: login Privy (email, SMS, X, Farcaster, Telegram) dengan embedded wallet.
+  Di dashboard Privy aktifkan metode login tersebut dan tambahkan domain Anda. Tanpa app id, app memakai wallet browser (untuk dev lokal).
+- `PINATA_JWT` : upload logo ke IPFS.
+- `DEPLOYER_PRIVATE_KEY` : wallet platform untuk launch gas-free (isi sedikit ETH di Robinhood Chain). Kosongkan untuk mematikan.
+- `NEXT_PUBLIC_TREASURY_ADDRESS` : penerima pembayaran Club.
+- `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` : lalu set webhook:
   `https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://<host>/api/telegram/webhook&secret_token=<SECRET>`
 - Bot X: isi kredensial `X_*` + `INTERNAL_SECRET`, jalankan `PONKR_HOST=https://<host> node scripts/x-bot.mjs`.
 

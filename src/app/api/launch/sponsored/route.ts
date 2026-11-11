@@ -4,7 +4,7 @@ import { sponsoredLaunchMessage } from "@/lib/messages";
 import type { LaunchInput } from "@/lib/server/tx";
 import { err, handle, json } from "@/lib/server/http";
 
-/** Gas-free launch from the web form. The wallet signs a message to prove ownership of the fee recipient. */
+/** Gasless launch from the web form. The wallet signs a message to prove ownership of the fee recipient. */
 export async function POST(req: Request) {
   return handle(async () => {
     if (!deployerEnabled()) return err("Sponsored launches are disabled on this server.", 503);

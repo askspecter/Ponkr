@@ -3,8 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { formatUnits } from "viem";
-import { useAccount } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { SignInButton } from "@/components/Providers";
+import { useAuth } from "@/hooks/useAuth";
 import { TokenAvatar } from "@/components/TokenBits";
 import { fmtNum, fmtUsd } from "@/lib/format";
 import type { TokenView } from "@/lib/types";
@@ -12,7 +12,7 @@ import type { TokenView } from "@/lib/types";
 interface P { eth: string; ethUsd: number; totalUsd: number; positions: { token: TokenView; amount: number; valueUsd: number; valueEth: number }[] }
 
 export default function Portfolio() {
-  const { address } = useAccount();
+  const { address } = useAuth();
   const { data, isLoading } = useQuery({
     queryKey: ["portfolio", address],
     enabled: !!address,
@@ -22,7 +22,7 @@ export default function Portfolio() {
   if (!address) return <Empty />;
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-3xl font-bold">Portfolio</h1>
+      <h1 className="display text-4xl font-bold">Portfolio</h1>
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <div className="card p-5"><div className="label">Total value</div><div className="text-2xl font-bold">{data ? fmtUsd(data.totalUsd) : "…"}</div></div>
         <div className="card p-5"><div className="label">ETH</div><div className="text-2xl font-bold">{data ? fmtNum(Number(formatUnits(BigInt(data.eth), 18)), 4) : "…"}</div><div className="text-xs text-muted">{data && fmtUsd(data.ethUsd)}</div></div>
@@ -53,9 +53,9 @@ export default function Portfolio() {
 function Empty() {
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center">
-      <h1 className="text-2xl font-bold">Connect your wallet</h1>
+      <h1 className="display text-3xl font-bold">Connect your wallet</h1>
       <p className="text-sm text-muted">See your balances and launchpad positions.</p>
-      <ConnectButton />
+      <SignInButton />
     </div>
   );
 }

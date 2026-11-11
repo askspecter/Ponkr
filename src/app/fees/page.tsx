@@ -3,8 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { formatUnits } from "viem";
-import { useAccount } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { SignInButton } from "@/components/Providers";
+import { useAuth } from "@/hooks/useAuth";
 import { TokenAvatar } from "@/components/TokenBits";
 import { useTxRunner } from "@/hooks/useTxRunner";
 import { EXPLORER } from "@/lib/config";
@@ -14,7 +14,7 @@ import type { TokenView } from "@/lib/types";
 interface F { claimableEth: string; claimableUsd: number; tokens: { token: TokenView; claimableTokens: string }[] }
 
 export default function Fees() {
-  const { address } = useAccount();
+  const { address } = useAuth();
   const { run, status } = useTxRunner();
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["fees", address],
@@ -32,21 +32,21 @@ export default function Fees() {
   if (!address) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center">
-        <h1 className="text-2xl font-bold">Creator fees</h1>
+        <h1 className="display text-3xl font-bold">Creator fees</h1>
         <p className="text-sm text-muted">Connect the wallet that receives your creator fees.</p>
-        <ConnectButton />
+        <SignInButton />
       </div>
     );
   }
   const busy = status.state === "signing" || status.state === "pending";
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-3xl font-bold">Creator fees</h1>
+      <h1 className="display text-4xl font-bold">Creator fees</h1>
       <p className="text-sm text-muted">Your share of trading fees and creator tax accrues on each token&apos;s curve, gets swept into escrow, and is yours to claim.</p>
       <div className="card glow mt-6 flex flex-wrap items-center justify-between gap-4 p-6">
         <div>
           <div className="label">Claimable now</div>
-          <div className="text-3xl font-bold">{data ? `${fmtNum(Number(formatUnits(BigInt(data.claimableEth), 18)), 6)} ETH` : "…"}</div>
+          <div className="display text-4xl font-bold">{data ? `${fmtNum(Number(formatUnits(BigInt(data.claimableEth), 18)), 6)} ETH` : "…"}</div>
           <div className="text-sm text-muted">{data && fmtUsd(data.claimableUsd)}</div>
         </div>
         <button className="btn btn-primary" disabled={busy || !data || BigInt(data.claimableEth) === 0n} onClick={() => act("claim")}>{busy ? "Confirm…" : "Claim ETH"}</button>

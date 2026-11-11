@@ -41,7 +41,7 @@ export function TokenPage({ address }: { address: string }) {
       <div className="flex flex-wrap items-center gap-4">
         <TokenAvatar t={t} size={64} />
         <div className="min-w-0">
-          <h1 className="text-2xl font-bold">{t.name} <span className="text-muted">${t.symbol}</span></h1>
+          <h1 className="display text-3xl font-bold">{t.name} <span className="text-muted">${t.symbol}</span></h1>
           <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted">
             <button onClick={() => { navigator.clipboard.writeText(t.token); setCopied(true); setTimeout(() => setCopied(false), 1200); }} className="mono hover:text-fg">{copied ? "Copied!" : shortAddr(t.token, 6)} ⧉</button>
             <span>Launched {timeAgo(t.timestamp)}</span>
@@ -52,8 +52,8 @@ export function TokenPage({ address }: { address: string }) {
         <div className="ml-auto grid grid-cols-2 gap-6 text-right sm:grid-cols-4">
           <Stat k="Price" v={usd ? fmtUsd(t.priceUsd) : `${t.priceEth.toExponential(3)} ETH`} />
           <Stat k="Market cap" v={usd ? fmtUsd(t.marketCapUsd) : `${fmtNum(t.marketCapEth)} ETH`} />
-          <Stat k="24h vol" v={t.volume24hEth !== undefined ? (usd ? fmtUsd(t.volume24hEth * ethUsd) : `${fmtNum(t.volume24hEth)} ETH`) : "-"} />
-          <Stat k="24h" v={t.change24h !== undefined ? `${t.change24h >= 0 ? "+" : ""}${t.change24h.toFixed(1)}%` : "-"} cls={t.change24h !== undefined ? (t.change24h >= 0 ? "text-up" : "text-down") : ""} />
+          <Stat k="24h vol" v={t.volume24hEth !== undefined ? (usd ? fmtUsd(t.volume24hEth * ethUsd) : `${fmtNum(t.volume24hEth)} ETH`) : "n/a"} />
+          <Stat k="24h" v={t.change24h !== undefined ? `${t.change24h >= 0 ? "+" : ""}${t.change24h.toFixed(1)}%` : "n/a"} cls={t.change24h !== undefined ? (t.change24h >= 0 ? "text-up" : "text-down") : ""} />
         </div>
       </div>
 
@@ -75,7 +75,7 @@ export function TokenPage({ address }: { address: string }) {
                       <td className="mono">{Number(formatUnits(BigInt(tr.quote), 18)).toFixed(5)}</td>
                       <td className="mono">{fmtNum(Number(formatUnits(BigInt(tr.tokens), 18)))}</td>
                       <td className="mono"><a href={`${EXPLORER}/address/${tr.trader}`} target="_blank" rel="noreferrer" className="hover:text-fg">{shortAddr(tr.trader)}</a></td>
-                      <td className="text-muted">{tr.timestamp ? timeAgo(tr.timestamp) : "-"}</td>
+                      <td className="text-muted">{tr.timestamp ? timeAgo(tr.timestamp) : "n/a"}</td>
                       <td className="pr-4 text-right"><a href={`${EXPLORER}/tx/${tr.txHash}`} target="_blank" rel="noreferrer" className="text-accent">↗</a></td>
                     </tr>
                   ))}

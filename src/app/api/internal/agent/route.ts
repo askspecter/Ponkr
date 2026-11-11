@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     if (!secret || req.headers.get("x-internal-secret") !== secret) return err("Forbidden", 403);
     const b = (await req.json()) as { text: string; identity: string; channel?: Channel; image?: string };
     if (!b.text || !b.identity) return err("text and identity required");
-    if (!consume("chat", b.identity, 20).ok) return json({ text: "Daily limit reached — try again tomorrow." });
+    if (!consume("chat", b.identity, 20).ok) return json({ text: "Daily limit reached. Try again tomorrow." });
     const threads = load<Record<string, Anthropic.MessageParam[]>>("x-threads", {});
     const hist = (threads[b.identity] ?? []).concat({ role: "user", content: b.text });
     const r = await runAgent(hist, { channel: b.channel ?? "x", identity: b.identity, attachedImage: b.image });

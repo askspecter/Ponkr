@@ -308,11 +308,21 @@ Rules:
 - Refer to the launchpad only as the "${BRAND.name} launchpad". Do not name third-party launchpad protocols.
 - Tokens are highly speculative; do not give financial advice or promise returns.
 - Be concise: short sentences, numbers formatted (e.g. $12.3K), tickers with $.
+- Never use em dashes, en dashes or hyphens as punctuation. Use commas, periods or colons instead.
 - Free plan: ${CLUB.freeMessagesPerDay} messages/day. ${BRAND.name} Club removes the limit.
 
 Channel: ${ctx.channel}. ${ctx.wallet ? `User wallet: ${ctx.wallet}.` : "No wallet connected."}${
     ctx.channel === "web" ? " In the web app, prepared transactions appear as cards with a Confirm button." : " In this channel the user cannot sign transactions; offer sponsored launches (fee recipient address required) and point to the web app for trading."
   }${ctx.attachedImage ? ` The user attached an image: ${ctx.attachedImage} (use it as the logo when launching).` : ""}`;
+}
+
+/** House style: no em/en dashes or spaced hyphens used as punctuation. Markdown list bullets are kept. */
+export function noDashes(t: string) {
+  return t
+    .replace(/(\d)\s*[\u2013\u2014]\s*(\d)/g, "$1 to $2")
+    .replace(/\s*[\u2014\u2013]\s*/g, ", ")
+    .replace(/(\S) - (\S)/g, "$1, $2")
+    .replace(/, ([.,;:!?])/g, "$1");
 }
 
 export async function runAgent(history: Anthropic.MessageParam[], ctx: AgentContext): Promise<AgentResult> {
@@ -337,7 +347,7 @@ export async function runAgent(history: Anthropic.MessageParam[], ctx: AgentCont
     const toolUses = res.content.filter((b): b is Anthropic.ToolUseBlock => b.type === "tool_use");
     if (res.stop_reason !== "tool_use" || !toolUses.length) {
       const text = res.content.filter((b): b is Anthropic.TextBlock => b.type === "text").map((b) => b.text).join("\n").trim();
-      return { text: text || "Done.", actions };
+      return { text: noDashes(text) || "Done.", actions };
     }
     const results = await Promise.all(
       toolUses.map(async (tu): Promise<Anthropic.ToolResultBlockParam> => {

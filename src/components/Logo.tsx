@@ -1,9 +1,37 @@
+/**
+ * Ponkr mascot: a small pixel courier robot with a visor and a coin antenna.
+ * Drawn on a 16x16 grid so it stays crisp at any size.
+ */
+const ROWS = [
+  "......aa........",
+  ".....aYYa.......",
+  "......aa........",
+  ".......k........",
+  "..kkkkkkkkkkkk..",
+  ".kBBBBBBBBBBBBk.",
+  ".kBkkkkkkkkkkBk.",
+  ".kBkYYkkkkYYkBk.",
+  ".kBkYYkkkkYYkBk.",
+  ".kBkkkkkkkkkkBk.",
+  ".kBBBBBBBBBBBBk.",
+  ".kBBBkYYYYkBBBk.",
+  ".kBBBBBBBBBBBBk.",
+  "..kkkkkkkkkkkk..",
+  "...kCk....kCk...",
+  "...kkk....kkk...",
+];
+const COLORS: Record<string, string> = { k: "#0b0b0d", B: "#4d6bff", Y: "#e6ff4a", a: "#e6ff4a", C: "#f2ecdf" };
+
 export function Logo({ className = "" }: { className?: string }) {
+  const rects: React.ReactNode[] = [];
+  ROWS.forEach((row, y) =>
+    [...row].forEach((c, x) => {
+      if (c !== ".") rects.push(<rect key={`${x}-${y}`} x={x} y={y} width="1.02" height="1.02" fill={COLORS[c]} />);
+    }),
+  );
   return (
-    <svg viewBox="0 0 32 32" className={className} aria-hidden>
-      <rect width="32" height="32" rx="9" fill="#b6ff3b" />
-      <path d="M10 23V9h7a5 5 0 0 1 0 10h-3.5" fill="none" stroke="#0b0f02" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="21.5" cy="23" r="2" fill="#0b0f02" />
+    <svg viewBox="0 0 16 16" className={className} shapeRendering="crispEdges" aria-hidden>
+      {rects}
     </svg>
   );
 }

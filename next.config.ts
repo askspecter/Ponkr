@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
       "@x402/evm/exact/client": false,
       "@x402/evm/upto/client": false,
       "@x402/svm/exact/client": false,
+      "@stripe/stripe-js": false,
+      "@react-native-async-storage/async-storage": false,
+      "@farcaster/mini-app-solana": false,
     };
     config.externals = [...(Array.isArray(config.externals) ? config.externals : []), "pino-pretty", "lokijs", "encoding"];
     return config;

@@ -60,7 +60,7 @@ export function PriceChart({ trades, ethUsd, usd }: { trades: Trade[]; ethUsd: n
         ))}
       </div>
       <div ref={el} className="h-[360px] w-full" />
-      {trades.length === 0 && <p className="-mt-48 text-center text-sm text-muted">No trades yet — be the first.</p>}
+      {trades.length === 0 && <p className="-mt-48 text-center text-sm text-muted">No trades yet. Be the first.</p>}
     </div>
   );
 }

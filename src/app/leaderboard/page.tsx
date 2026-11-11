@@ -15,7 +15,7 @@ export default function Leaderboard() {
   const { data, isLoading } = useQuery({ queryKey: ["lb"], queryFn: async () => (await (await fetch("/api/leaderboard")).json()) as LB, refetchInterval: 60_000 });
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-3xl font-bold">Leaderboard</h1>
+      <h1 className="display text-4xl font-bold">Leaderboard</h1>
       <p className="text-sm text-muted">Top tokens and creators by market cap.</p>
       <div className="mt-6 flex gap-2">
         {(["tokens", "creators"] as const).map((k) => <button key={k} onClick={() => setTab(k)} className={`rounded-full border px-4 py-1.5 text-sm capitalize ${tab === k ? "border-accent" : "border-line text-muted"}`}>{k}</button>)}

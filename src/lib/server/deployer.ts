@@ -38,7 +38,7 @@ export function checkLaunchQuota(identity: string) {
 
 export async function sponsoredLaunch(input: LaunchInput, identity: string) {
   if (input.initialBuyEth && Number(input.initialBuyEth) > 0) {
-    throw new Error("Sponsored launches cannot include an initial buy. Launch from your own wallet to snipe-proof buy at launch.");
+    throw new Error("Sponsored launches cannot include an initial buy. Launch from your own wallet to snipe proof buy at launch.");
   }
   const commit = checkLaunchQuota(identity);
   const acct = account();

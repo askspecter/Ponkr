@@ -1,6 +1,6 @@
 import { BRAND, CLUB } from "@/lib/config";
 
-export const metadata = { title: "Docs — Ponkr" };
+export const metadata = { title: "Docs | Ponkr" };
 
 const sections = [
   ["overview", "Overview"],
@@ -28,7 +28,7 @@ export default function Docs() {
       </aside>
       <article className="max-w-3xl space-y-14 text-sm leading-relaxed text-muted [&_h2]:mb-3 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-fg [&_h3]:mt-6 [&_h3]:mb-2 [&_h3]:font-semibold [&_h3]:text-fg">
         <section id="overview">
-          <h1 className="mb-4 text-4xl font-bold text-fg">{BRAND.name} docs</h1>
+          <h1 className="display mb-4 text-4xl font-bold text-fg">{BRAND.name} docs</h1>
           <p>{BRAND.name} is an AI agent that researches, trades and launches tokens on <b className="text-fg">Robinhood Chain</b> (chain id 4663, ETH for gas). Talk to it on the web, Telegram or X, or integrate through the API and CLI. The agent never custodies your funds: every trade and wallet launch is a transaction you confirm.</p>
         </section>
 
@@ -38,14 +38,14 @@ export default function Docs() {
           <h3>Ways to launch</h3>
           <ul className="list-disc space-y-1 pl-5">
             <li><b className="text-fg">Chat:</b> &ldquo;launch a token called Moon Cat, ticker MCAT&rdquo; and attach an image (or ask for a generated logo).</li>
-            <li><b className="text-fg">Launch form:</b> <a href="/launch" className="text-accent underline">/launch</a> — full control over socials, fee recipient, creator tax and an initial buy.</li>
+            <li><b className="text-fg">Launch form:</b> <a href="/launch" className="text-accent underline">/launch</a>: full control over socials, fee recipient, creator tax and an initial buy.</li>
             <li><b className="text-fg">X:</b> tag @{BRAND.twitter} with name, ticker and image.</li>
             <li><b className="text-fg">Telegram:</b> DM @{BRAND.telegramBot}.</li>
             <li><b className="text-fg">API / CLI:</b> see below.</li>
           </ul>
           <h3>Launch modes</h3>
-          <p><b className="text-fg">My wallet</b> — you pay the 0.0005 ETH launch fee plus gas and can include an initial buy in the same transaction (exempt from the anti-snipe tax). <b className="text-fg">Gas-free</b> — the platform pays and sets your address as fee recipient; no initial buy; limited per day.</p>
-          <h3>Anti-snipe</h3>
+          <p><b className="text-fg">My wallet</b>: you pay the 0.0005 ETH launch fee plus gas and can include an initial buy in the same transaction (exempt from the anti snipe tax). <b className="text-fg">Gasless</b>: the platform pays and sets your address as fee recipient; no initial buy; limited per day.</p>
+          <h3>Anti snipe</h3>
           <p>Buys in the first seconds after launch pay a steeply decaying tax (starting near 99%), so bots can&apos;t snipe supply at launch.</p>
         </section>
 
@@ -55,9 +55,9 @@ export default function Docs() {
             <tbody className="[&_td]:border-t [&_td]:border-line [&_td]:py-2">
               <tr><td className="text-fg">Trading fee</td><td>1% of every buy and sell (on the curve and after graduation)</td></tr>
               <tr><td className="text-fg">Creator share</td><td>70% of the trading fee</td></tr>
-              <tr><td className="text-fg">Creator tax</td><td>Optional 0–10% extra per trade, 100% to the creator, fixed at launch</td></tr>
+              <tr><td className="text-fg">Creator tax</td><td>Optional 0 to 10% extra per trade, 100% to the creator, fixed at launch</td></tr>
               <tr><td className="text-fg">Buybacks</td><td>Optional: part of fees buys back the token; bought tokens vest over 5 years</td></tr>
-              <tr><td className="text-fg">Launch fee</td><td>0.0005 ETH (waived for gas-free launches)</td></tr>
+              <tr><td className="text-fg">Launch fee</td><td>0.0005 ETH (waived for gasless launches)</td></tr>
             </tbody>
           </table>
           <p className="mt-3">Fees accrue on each token&apos;s curve. Sweep them into escrow and claim from <a className="text-accent underline" href="/fees">/fees</a>, by asking the agent, or via the API. To share fees, set the fee recipient to a teammate, treasury or splitter contract at launch.</p>
@@ -65,12 +65,12 @@ export default function Docs() {
 
         <section id="trading">
           <h2>Trading</h2>
-          <p>Ask in plain language — &ldquo;buy 0.01 ETH of $MCAT&rdquo;, &ldquo;buy $20 of the top token&rdquo;, &ldquo;sell 50% of my $DOG&rdquo;. The agent quotes the curve, applies slippage (default 3%) and shows a confirm card. Graduated tokens trade on Uniswap v4.</p>
+          <p>Ask in plain language, like &ldquo;buy 0.01 ETH of $MCAT&rdquo;, &ldquo;buy $20 of the top token&rdquo;, &ldquo;sell 50% of my $DOG&rdquo;. The agent quotes the curve, applies slippage (default 3%) and shows a confirm card. Graduated tokens trade on Uniswap v4.</p>
         </section>
 
         <section id="socials">
           <h2>X & Telegram</h2>
-          <p>On social channels the agent can research tokens and run gas-free launches. Include a fee recipient address — e.g. &ldquo;@{BRAND.twitter} launch $MCAT Moon Cat, fees to 0x…&rdquo; with an image attached. For trading, use the web app.</p>
+          <p>On social channels the agent can research tokens and run gasless launches. Include a fee recipient address, for example &ldquo;@{BRAND.twitter} launch $MCAT Moon Cat, fees to 0x…&rdquo; with an image attached. For trading, use the web app.</p>
         </section>
 
         <section id="api">
@@ -87,7 +87,7 @@ curl $HOST/api/v1/agent/job/<jobId> -H "X-API-Key: $PONKR_API_KEY"
 # {"status":"completed","response":"…","actions":[…]}
 
 curl -X POST $HOST/api/v1/agent/job/<jobId>/cancel -H "X-API-Key: $PONKR_API_KEY"`}</Code>
-          <h3>Launch API (gas-free)</h3>
+          <h3>Launch API (gasless)</h3>
           <Code>{`curl -X POST $HOST/api/v1/token-launches/deploy \\
   -H "X-API-Key: $PONKR_API_KEY" -H "content-type: application/json" \\
   -d '{"name":"Moon Cat","symbol":"MCAT","image":"https://…/cat.png",
@@ -118,7 +118,7 @@ ponkr prompt "what's trending?"`}</Code>
           <ul className="list-disc space-y-1 pl-5">
             <li>Free: {CLUB.freeMessagesPerDay} agent messages per day, {CLUB.apiDailyFree} API requests per day.</li>
             <li>Club ({CLUB.priceEth} ETH / {CLUB.periodDays} days): unlimited messages, {CLUB.apiDailyClub} API requests per day.</li>
-            <li>Gas-free launches are capped per wallet / account per day.</li>
+            <li>Gasless launches are capped per wallet / account per day.</li>
           </ul>
         </section>
 

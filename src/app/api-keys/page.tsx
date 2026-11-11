@@ -2,12 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { useAccount, useSignMessage } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useSignMessage } from "wagmi";
+import { SignInButton } from "@/components/Providers";
+import { useAuth } from "@/hooks/useAuth";
 import { apiKeyMessage } from "@/lib/messages";
 
 export default function ApiKeys() {
-  const { address } = useAccount();
+  const { address } = useAuth();
   const { signMessageAsync } = useSignMessage();
   const [name, setName] = useState("my-agent");
   const [created, setCreated] = useState<string>();
@@ -33,10 +34,10 @@ export default function ApiKeys() {
     }
   }
 
-  if (!address) return <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center"><h1 className="text-2xl font-bold">API keys</h1><p className="text-sm text-muted">Connect a wallet to manage keys.</p><ConnectButton /></div>;
+  if (!address) return <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center"><h1 className="display text-3xl font-bold">API keys</h1><p className="text-sm text-muted">Connect a wallet to manage keys.</p><SignInButton /></div>;
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-bold">API keys</h1>
+      <h1 className="display text-4xl font-bold">API keys</h1>
       <p className="text-sm text-muted">Use keys with the Agent API, launch API and CLI. See the <a className="text-accent underline" href="/docs#api">docs</a>.</p>
       <div className="card mt-6 flex gap-2 p-4">
         <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Key name" />
@@ -44,7 +45,7 @@ export default function ApiKeys() {
       </div>
       {created && (
         <div className="card mt-4 border-up/40 p-4">
-          <div className="text-sm font-semibold text-up">Copy your key now — it won&apos;t be shown again.</div>
+          <div className="text-sm font-semibold text-up">Copy your key now. It won&apos;t be shown again.</div>
           <code className="mono mt-2 block break-all rounded bg-panel-2 p-3 text-xs">{created}</code>
         </div>
       )}

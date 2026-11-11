@@ -4,15 +4,16 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { isAddress } from "viem";
-import { useAccount, useSignMessage } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useSignMessage } from "wagmi";
+import { SignInButton } from "@/components/Providers";
+import { useAuth } from "@/hooks/useAuth";
 import { TokenAvatar, Progress } from "@/components/TokenBits";
 import { useTxRunner } from "@/hooks/useTxRunner";
 import { sponsoredLaunchMessage } from "@/lib/messages";
 import { EXPLORER, ipfsToHttp } from "@/lib/config";
 
 export function LaunchForm() {
-  const { address } = useAccount();
+  const { address } = useAuth();
   const router = useRouter();
   const { signMessageAsync } = useSignMessage();
   const { run, status } = useTxRunner();
@@ -106,7 +107,7 @@ export function LaunchForm() {
               <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
             </label>
             <div className="flex-1">
-              <input className="input mono text-xs" value={f.logo} onChange={set("logo")} placeholder="ipfs://… (auto-filled after upload)" />
+              <input className="input mono text-xs" value={f.logo} onChange={set("logo")} placeholder="ipfs://… (filled in after upload)" />
               <p className="mt-1 text-xs text-muted">PNG, JPEG, GIF or WebP up to 5MB. Stored on IPFS.</p>
             </div>
           </div>
@@ -115,7 +116,7 @@ export function LaunchForm() {
         <details className="rounded-xl border border-line p-4" open>
           <summary className="cursor-pointer text-sm font-semibold">Socials (optional)</summary>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <input className="input" value={f.twitter} onChange={set("twitter")} placeholder="X / Twitter URL" />
+            <input className="input" value={f.twitter} onChange={set("twitter")} placeholder="X profile URL" />
             <input className="input" value={f.telegram} onChange={set("telegram")} placeholder="Telegram URL" />
             <input className="input" value={f.website} onChange={set("website")} placeholder="Website" />
             <input className="input" value={f.discord} onChange={set("discord")} placeholder="Discord" />
@@ -157,18 +158,18 @@ export function LaunchForm() {
               <div className="font-semibold text-sm">My wallet</div>Pay ~0.0005 ETH + gas. Optional first buy.
             </button>
             <button type="button" disabled={!cfg?.sponsoredLaunches} onClick={() => setF({ ...f, mode: "sponsored" })} className={`rounded-xl border p-3 text-left text-xs disabled:opacity-40 ${f.mode === "sponsored" ? "border-accent" : "border-line"}`}>
-              <div className="font-semibold text-sm">Gas-free</div>{cfg?.sponsoredLaunches ? "We pay the launch. Sign a message." : "Unavailable"}
+              <div className="font-semibold text-sm">Gasless</div>{cfg?.sponsoredLaunches ? "We pay the launch. Sign a message." : "Unavailable"}
             </button>
           </div>
           {f.mode === "wallet" && (
             <div>
               <label className="label">Initial buy (ETH, optional)</label>
               <input className="input" inputMode="decimal" value={f.initialBuy} onChange={set("initialBuy")} placeholder="0.01" />
-              <p className="mt-1 text-xs text-muted">Bought in the same transaction, exempt from the anti-snipe tax.</p>
+              <p className="mt-1 text-xs text-muted">Bought in the same transaction, exempt from the anti snipe tax.</p>
             </div>
           )}
           {!address ? (
-            <ConnectButton />
+            <SignInButton />
           ) : (
             <button className="btn btn-primary w-full" disabled={busy || uploading || !f.logo}>
               {busy ? (status.state === "signing" ? "Confirm in wallet…" : status.state === "pending" ? "Launching…" : "Preparing…") : `Launch $${f.symbol || "TOKEN"}`}
@@ -176,7 +177,7 @@ export function LaunchForm() {
           )}
           {!f.logo && <p className="text-xs text-muted">Upload a logo to continue.</p>}
           {error && <p className="text-xs text-down">{error}</p>}
-          {done?.tx && <a className="block text-xs text-up underline" href={`${EXPLORER}/tx/${done.tx}`} target="_blank" rel="noreferrer">✓ Launched — view transaction</a>}
+          {done?.tx && <a className="block text-xs text-up underline" href={`${EXPLORER}/tx/${done.tx}`} target="_blank" rel="noreferrer">Launched. View transaction</a>}
         </div>
       </div>
     </form>
