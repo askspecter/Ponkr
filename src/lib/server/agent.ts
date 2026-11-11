@@ -5,7 +5,7 @@ import { BRAND, CLUB, EXPLORER } from "../config";
 import { fmtNum } from "../format";
 import { deployerEnabled, sponsoredLaunch } from "./deployer";
 import { requireClub } from "./accounts";
-import { allLaunches } from "./indexer";
+import { allLaunches, markViaApp } from "./indexer";
 import { pinFile, pinFromUrl } from "./ipfs";
 import { ethUsd } from "./price";
 import { rpc } from "./rpc";
@@ -37,11 +37,52 @@ export interface AgentResult {
   actions: AgentAction[];
 }
 
-const MODEL = process.env.AGENT_MODEL || "claude-opus-5-5";
+/**
+ * Two ways to reach the model:
+ * - LLM gateway (preferred): LLM_API_KEY + LLM_BASE_URL. The gateway exposes an Anthropic-compatible
+ *   /v1/messages endpoint, so the same SDK is used with a different base URL and key.
+ * - Direct: ANTHROPIC_API_KEY.
+ */
+const GATEWAY_KEY = process.env.LLM_API_KEY || "";
+const GATEWAY_URL = process.env.LLM_BASE_URL || "https://llm.bankr.bot";
+const useGateway = Boolean(GATEWAY_KEY);
+const MODEL = process.env.AGENT_MODEL || (useGateway ? "claude-opus-5.5" : "claude-opus-5-5");
 const EFFORT = (process.env.AGENT_EFFORT || "low") as "low" | "medium" | "high";
+const MAX_TOKENS = Number(process.env.AGENT_MAX_TOKENS || 4096);
+
+export const agentConfigured = () => Boolean(GATEWAY_KEY || process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
 
 let anthropic: Anthropic | undefined;
-const client = () => (anthropic ??= new Anthropic());
+const client = () =>
+  (anthropic ??= useGateway ? new Anthropic({ apiKey: GATEWAY_KEY, baseURL: GATEWAY_URL, maxRetries: 2, defaultHeaders: { "x-api-key": GATEWAY_KEY } }) : new Anthropic());
+
+async function callModel(system: string, messages: Anthropic.MessageParam[]): Promise<Anthropic.Message> {
+  try {
+    if (useGateway) {
+      // Plain Messages API shape: gateway-routed providers may not accept Anthropic beta fields.
+      return await client().messages.create({ model: MODEL, max_tokens: MAX_TOKENS, system, tools, messages });
+    }
+    return (await client().beta.messages.create({
+      model: MODEL,
+      max_tokens: 16000,
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
+      output_config: { effort: EFFORT },
+      system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
+      tools,
+      messages,
+    } as never)) as unknown as Anthropic.Message;
+  } catch (e) {
+    if (e instanceof Anthropic.APIError) {
+      console.error("[agent] model error", e.status, e.message);
+      if (e.status === 402) throw new Error("The agent is temporarily unavailable (AI credits exhausted). Please try again later.");
+      if (e.status === 401 || e.status === 403) throw new Error("The agent is not configured correctly (AI key rejected).");
+      if (e.status === 429) throw new Error("The agent is busy right now. Try again in a minute.");
+      throw new Error("The agent hit an error talking to the AI service. Try again.");
+    }
+    throw e;
+  }
+}
 
 const tools: Anthropic.Tool[] = [
   {
@@ -254,6 +295,7 @@ async function runTool(name: string, input: Record<string, unknown>, ctx: AgentC
       if (mode === "wallet") {
         if (ctx.channel !== "web" || !ctx.wallet) return { error: "Wallet mode needs a connected wallet in the web app; use sponsored mode instead." };
         const built = await buildLaunch(launchInput, ctx.wallet);
+        if (built.predicted?.token) await markViaApp(built.predicted.token);
         actions.push({
           type: "txs",
           title: `Launch $${symbol}`,
@@ -342,16 +384,7 @@ export async function runAgent(history: Anthropic.MessageParam[], ctx: AgentCont
   const actions: AgentAction[] = [];
   const messages: Anthropic.MessageParam[] = history.slice(-20);
   for (let i = 0; i < 8; i++) {
-    const res = await client().beta.messages.create({
-      model: MODEL,
-      max_tokens: 16000,
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-      output_config: { effort: EFFORT },
-      system: [{ type: "text", text: systemPrompt(ctx), cache_control: { type: "ephemeral" } }],
-      tools,
-      messages,
-    } as never) as unknown as Anthropic.Message;
+    const res = await callModel(systemPrompt(ctx), messages);
 
     if (res.stop_reason === "refusal") {
       return { text: "I can't help with that request.", actions };

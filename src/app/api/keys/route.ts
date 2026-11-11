@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   const owner = new URL(req.url).searchParams.get("owner") || "";
   if (!isAddress(owner)) return err("owner required");
-  return json({ keys: listApiKeys(owner) });
+  return json({ keys: await listApiKeys(owner) });
 }
 
 export async function POST(req: Request) {

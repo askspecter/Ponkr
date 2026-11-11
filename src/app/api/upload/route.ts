@@ -4,7 +4,7 @@ import { err, handle, json } from "@/lib/server/http";
 
 export async function POST(req: Request) {
   return handle(async () => {
-    if (!consume("upload", clientIp(req), 30).ok) return err("Upload limit reached", 429);
+    if (!(await consume("upload", clientIp(req), 30)).ok) return err("Upload limit reached", 429);
     const fd = await req.formData();
     const f = fd.get("file");
     if (!(f instanceof Blob)) return err("Missing file");

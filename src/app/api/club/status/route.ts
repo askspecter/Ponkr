@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     const identity = user ? `privy:${user.userId}` : `ip:${clientIp(req)}`;
     return json({
       ...status,
-      messagesUsed: usage("chat", identity),
+      messagesUsed: await usage("chat", identity),
       freeLimit: CLUB.freeMessagesPerDay,
       sponsoredLaunches: deployerEnabled(),
     });

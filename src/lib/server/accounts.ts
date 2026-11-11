@@ -5,7 +5,7 @@ import { tokenAbi } from "../abis";
 import { CLUB } from "../config";
 import { apiKeyMessage } from "../messages";
 import { rpc } from "./rpc";
-import { load, save } from "./store";
+import { kvGet, kvIncr, kvSet } from "./store";
 
 // ---------- Club membership (token gated) ----------
 
@@ -86,20 +86,16 @@ export async function requireClub(wallets: (Address | string | undefined)[]) {
 
 // ---------- Daily usage limits ----------
 
-export function consume(bucket: string, identity: string, limit: number) {
-  const day = new Date().toISOString().slice(0, 10);
-  const name = `usage-${bucket}-${day}`;
-  const u = load<Record<string, number>>(name, {});
-  const used = u[identity] ?? 0;
-  if (used >= limit) return { ok: false as const, used, limit };
-  u[identity] = used + 1;
-  save(name, u);
-  return { ok: true as const, used: used + 1, limit };
+const today = () => new Date().toISOString().slice(0, 10);
+
+export async function consume(bucket: string, identity: string, limit: number) {
+  const used = await kvIncr(`usage:${bucket}:${today()}:${identity}`, 2 * 86400);
+  if (used > limit) return { ok: false as const, used: limit, limit };
+  return { ok: true as const, used, limit };
 }
 
-export function usage(bucket: string, identity: string) {
-  const day = new Date().toISOString().slice(0, 10);
-  return load<Record<string, number>>(`usage-${bucket}-${day}`, {})[identity] ?? 0;
+export async function usage(bucket: string, identity: string) {
+  return Number(await kvGet(`usage:${bucket}:${today()}:${identity}`, 0));
 }
 
 // ---------- API keys ----------
@@ -115,17 +111,15 @@ interface ApiKeyRecord {
 }
 
 const sha = (s: string) => crypto.createHash("sha256").update(s).digest("hex");
-
+const ownerKey = (owner: string) => `apikeys:${owner.toLowerCase()}`;
 
 export async function createApiKey(owner: Address, nonce: string, signature: Hex, name: string) {
   const ts = Number(nonce);
   if (!ts || Math.abs(Date.now() - ts) > 10 * 60_000) throw new Error("Signature expired, try again.");
   const ok = await verifyMessage({ address: owner, message: apiKeyMessage(owner, nonce), signature });
   if (!ok) throw new Error("Invalid signature.");
-  const keys = load<ApiKeyRecord[]>("api-keys", []);
-  if (keys.filter((k) => k.owner.toLowerCase() === owner.toLowerCase() && !k.revoked).length >= 10) {
-    throw new Error("Maximum of 10 active keys per wallet.");
-  }
+  const keys = await kvGet<ApiKeyRecord[]>(ownerKey(owner), []);
+  if (keys.filter((k) => !k.revoked).length >= 10) throw new Error("Maximum of 10 active keys per wallet.");
   const secret = "pk_" + crypto.randomBytes(24).toString("base64url");
   const rec: ApiKeyRecord = {
     id: crypto.randomUUID(),
@@ -135,25 +129,26 @@ export async function createApiKey(owner: Address, nonce: string, signature: Hex
     name: (name || "default").slice(0, 40),
     createdAt: Date.now(),
   };
-  keys.push(rec);
-  save("api-keys", keys);
+  await kvSet(`apikey:${rec.hash}`, rec);
+  await kvSet(ownerKey(owner), [...keys, rec]);
   return { key: secret, id: rec.id, prefix: rec.prefix };
 }
 
-export function listApiKeys(owner: string) {
-  return load<ApiKeyRecord[]>("api-keys", [])
-    .filter((k) => k.owner.toLowerCase() === owner.toLowerCase() && !k.revoked)
+export async function listApiKeys(owner: string) {
+  return (await kvGet<ApiKeyRecord[]>(ownerKey(owner), []))
+    .filter((k) => !k.revoked)
     .map(({ id, prefix, name, createdAt }) => ({ id, prefix, name, createdAt }));
 }
 
 export async function revokeApiKey(owner: Address, id: string, nonce: string, signature: Hex) {
   const ok = await verifyMessage({ address: owner, message: apiKeyMessage(owner, nonce), signature });
   if (!ok) throw new Error("Invalid signature.");
-  const keys = load<ApiKeyRecord[]>("api-keys", []);
-  const k = keys.find((x) => x.id === id && x.owner.toLowerCase() === owner.toLowerCase());
+  const keys = await kvGet<ApiKeyRecord[]>(ownerKey(owner), []);
+  const k = keys.find((x) => x.id === id);
   if (!k) throw new Error("Key not found.");
   k.revoked = true;
-  save("api-keys", keys);
+  await kvSet(`apikey:${k.hash}`, k);
+  await kvSet(ownerKey(owner), keys);
 }
 
 /** Resolves X-API-Key / Bearer auth and enforces daily limits. */
@@ -163,10 +158,10 @@ export async function authApiKey(req: Request) {
     req.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ||
     "";
   if (!raw) return { error: "Missing API key (X-API-Key header).", status: 401 } as const;
-  const rec = load<ApiKeyRecord[]>("api-keys", []).find((k) => k.hash === sha(raw) && !k.revoked);
-  if (!rec) return { error: "Invalid API key.", status: 401 } as const;
+  const rec = await kvGet<ApiKeyRecord | null>(`apikey:${sha(raw)}`, null);
+  if (!rec || rec.revoked) return { error: "Invalid API key.", status: 401 } as const;
   const limit = (await isClub(rec.owner)) ? CLUB.apiDailyClub : CLUB.apiDailyFree;
-  const c = consume("api", rec.id, limit);
+  const c = await consume("api", rec.id, limit);
   if (!c.ok) return { error: `Daily API limit reached (${limit}/day).`, status: 429 } as const;
   return { key: rec, remaining: limit - c.used } as const;
 }

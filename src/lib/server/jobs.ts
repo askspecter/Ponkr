@@ -2,7 +2,7 @@ import "server-only";
 import crypto from "node:crypto";
 import type Anthropic from "@anthropic-ai/sdk";
 import { runAgent, type AgentAction, type AgentContext } from "./agent";
-import { load, save } from "./store";
+import { kvGet, kvSet } from "./store";
 
 export interface Job {
   jobId: string;
@@ -17,56 +17,58 @@ export interface Job {
   completedAt?: number;
 }
 
-type Threads = Record<string, { owner: string; messages: Anthropic.MessageParam[] }>;
+interface Thread {
+  owner: string;
+  messages: Anthropic.MessageParam[];
+}
 
-const jobs = () => load<Record<string, Job>>("jobs", {});
+const JOB_TTL = 7 * 86400;
+const THREAD_TTL = 30 * 86400;
 
 export function getJob(id: string) {
-  return jobs()[id];
+  return kvGet<Job | null>(`job:${id}`, null);
 }
 
-function put(j: Job) {
-  const all = jobs();
-  all[j.jobId] = j;
-  // keep the latest 5000 jobs
-  const ids = Object.keys(all);
-  if (ids.length > 5000) for (const id of ids.slice(0, ids.length - 5000)) delete all[id];
-  save("jobs", all);
-}
+const put = (j: Job) => kvSet(`job:${j.jobId}`, j, JOB_TTL);
 
-export function submit(prompt: string, owner: string, ctx: AgentContext, threadId?: string) {
-  const threads = load<Threads>("threads", {});
-  const tid = threadId && threads[threadId]?.owner === owner ? threadId : crypto.randomUUID();
+/**
+ * Creates a job and returns it together with the work promise. On serverless hosts the caller
+ * must keep the function alive until `work` settles (Next.js `after()`).
+ */
+export async function submit(prompt: string, owner: string, ctx: AgentContext, threadId?: string) {
+  const existing = threadId ? await kvGet<Thread | null>(`thread:${threadId}`, null) : null;
+  const tid = existing && existing.owner === owner ? threadId! : crypto.randomUUID();
   const job: Job = { jobId: crypto.randomUUID(), threadId: tid, status: "pending", prompt, owner, createdAt: Date.now() };
-  put(job);
-  void (async () => {
+  await put(job);
+
+  const work = (async () => {
     job.status = "processing";
-    put(job);
+    await put(job);
     try {
-      const t = threads[tid] ?? { owner, messages: [] };
+      const t: Thread = existing && existing.owner === owner ? existing : { owner, messages: [] };
       t.messages.push({ role: "user", content: prompt });
       const r = await runAgent(t.messages, ctx);
-      if (getJob(job.jobId)?.status === "cancelled") return;
+      if ((await getJob(job.jobId))?.status === "cancelled") return;
       t.messages.push({ role: "assistant", content: r.text });
       t.messages = t.messages.slice(-30);
-      threads[tid] = t;
-      save("threads", threads);
+      await kvSet(`thread:${tid}`, t, THREAD_TTL);
       Object.assign(job, { status: "completed", response: r.text, actions: r.actions, completedAt: Date.now() });
     } catch (e) {
       Object.assign(job, { status: "failed", error: (e as Error).message, completedAt: Date.now() });
     }
-    put(job);
+    await put(job);
   })();
-  return job;
+
+  return { job, work };
 }
 
-export function cancel(id: string, owner: string) {
-  const j = getJob(id);
+export async function cancel(id: string, owner: string) {
+  const j = await getJob(id);
   if (!j || j.owner !== owner) return undefined;
   if (j.status === "pending" || j.status === "processing") {
     j.status = "cancelled";
     j.completedAt = Date.now();
-    put(j);
+    await put(j);
   }
   return j;
 }

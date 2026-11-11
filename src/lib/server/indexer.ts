@@ -3,7 +3,7 @@ import { decodeAbiParameters, decodeEventLog, encodeAbiParameters, encodeFunctio
 import { factoryAbi, launchedTokenPrefix, tokenAbi, curveAbi } from "../abis";
 import { CONTRACTS, GRADUATED_TICK_SPACING, LOG_CHUNK, LOOKBACK_BLOCKS, NATIVE, START_BLOCK, TOKEN_LAUNCHED_TOPIC } from "../config";
 import { getLogsAdaptive, rpc, withRetry, type RawLog } from "./rpc";
-import { load, save } from "./store";
+import { kvSAdd, kvSMembers, load, save } from "./store";
 
 export interface Launch {
   token: Address;
@@ -104,17 +104,26 @@ export async function ensureLaunch(token: Address): Promise<Launch | undefined> 
   return l;
 }
 
-export function markViaApp(token: string) {
-  const s = state();
-  const l = s.launches.find((x) => x.token.toLowerCase() === token.toLowerCase());
-  if (l) {
-    l.viaApp = true;
-    save("launches", s);
-  } else {
-    const pending = load<string[]>("app-launches", []);
-    pending.push(token.toLowerCase());
-    save("app-launches", pending);
-  }
+/**
+ * Records a token as launched through Ponkr (durable). For wallet launches this is the predicted
+ * address; it only shows up in the UI if a launch with that address actually lands on chain.
+ */
+export async function markViaApp(token: string) {
+  await kvSAdd("app-launches", token.toLowerCase());
+  appSet = undefined;
+  const l = findLaunch(token);
+  if (l) l.viaApp = true;
+}
+
+let appSet: { at: number; set: Set<string> } | undefined;
+
+/** Applies the durable "launched via Ponkr" set to the in-memory index (refreshed every 30s). */
+export async function refreshViaApp() {
+  if (appSet && Date.now() - appSet.at < 30_000) return appSet.set;
+  const set = new Set(await kvSMembers("app-launches").catch(() => [] as string[]));
+  appSet = { at: Date.now(), set };
+  for (const l of state().launches) if (set.has(l.token.toLowerCase())) l.viaApp = true;
+  return set;
 }
 
 async function metadata(tokens: Address[]) {
@@ -157,7 +166,7 @@ async function doSync(maxChunks: number) {
   if (s.lastBlock === "auto") s.lastBlock = (head > LOOKBACK_BLOCKS ? head - LOOKBACK_BLOCKS : 0n).toString();
   let from = BigInt(s.lastBlock) + 1n;
   let chunks = 0;
-  const appTokens = new Set(load<string[]>("app-launches", []));
+  const appTokens = await refreshViaApp();
 
   while (from <= head && chunks < maxChunks) {
     const to = from + LOG_CHUNK - 1n > head ? head : from + LOG_CHUNK - 1n;

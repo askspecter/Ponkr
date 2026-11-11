@@ -1,7 +1,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { getAddress, isAddress } from "viem";
 import { CLUB } from "@/lib/config";
-import { runAgent } from "@/lib/server/agent";
+import { agentConfigured, runAgent } from "@/lib/server/agent";
 import { clientIp, clubStatus, consume } from "@/lib/server/accounts";
 import { verifiedWallets } from "@/lib/server/privy";
 import { err, handle, json } from "@/lib/server/http";
@@ -16,9 +16,7 @@ interface Body {
 
 export async function POST(req: Request) {
   return handle(async () => {
-    if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) {
-      return err("The agent is not configured (ANTHROPIC_API_KEY missing).", 503);
-    }
+    if (!agentConfigured()) return err("The agent is not available yet. Please check back soon.", 503);
     const b = (await req.json()) as Body;
     const msgs = (b.messages ?? []).filter((m) => m.content?.trim()).slice(-20);
     if (!msgs.length || msgs[msgs.length - 1].role !== "user") return err("Send a message");
@@ -28,7 +26,7 @@ export async function POST(req: Request) {
     const { user, wallets } = await verifiedWallets(req, wallet);
     const identity = user ? `privy:${user.userId}` : `ip:${clientIp(req)}`;
     if (!(await clubStatus(wallets)).club) {
-      const c = consume("chat", identity, CLUB.freeMessagesPerDay);
+      const c = await consume("chat", identity, CLUB.freeMessagesPerDay);
       if (!c.ok) return json({ error: `You've used your ${CLUB.freeMessagesPerDay} free messages today. Hold ${CLUB.minHold.toLocaleString("en-US")} $${CLUB.symbol} to join Club for unlimited messages.`, upgrade: true }, 402);
     }
     const history: Anthropic.MessageParam[] = msgs.map((m) => ({ role: m.role, content: m.content }));

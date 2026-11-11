@@ -3,7 +3,7 @@ import { formatUnits, isAddress, type Address } from "viem";
 import { CONTRACTS, NATIVE, PAIR_TOKENS } from "../config";
 import { escrowAbi, tokenAbi } from "../abis";
 import { marketCapQuote, priceE18, progressPct } from "../math";
-import { allLaunches, ensureLaunch, liveStates, sync, tradesFor, type Launch, type LiveState } from "./indexer";
+import { allLaunches, ensureLaunch, liveStates, refreshViaApp, sync, tradesFor, type Launch, type LiveState } from "./indexer";
 import { ethUsd, prices } from "./price";
 import { rpc } from "./rpc";
 
@@ -49,6 +49,7 @@ export type SortKey = "new" | "mcap" | "progress" | "graduated" | "app";
 
 export async function listTokens(opts: { sort?: SortKey; q?: string; limit?: number; offset?: number; creator?: string }) {
   await sync({ wait: allLaunches().length === 0 });
+  await refreshViaApp();
   const { sort = "new", q, limit = 50, offset = 0, creator } = opts;
   let ls = allLaunches().slice();
   if (q) {

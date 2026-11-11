@@ -24,14 +24,16 @@ kontrak launchpad bonding-curve yang sudah live di **Robinhood Chain** (chain id
 ## Menjalankan
 
 ```bash
-cp .env.example .env.local   # isi ANTHROPIC_API_KEY minimal
+cp .env.example .env.local   # isi LLM_API_KEY minimal
 npm install
 npm run dev                  # http://localhost:3000
 ```
 
 Variabel penting (`.env.example`):
 
-- `ANTHROPIC_API_KEY` : wajib untuk agen.
+- `LLM_API_KEY` (+ `LLM_BASE_URL`, `AGENT_MODEL`) : key LLM gateway untuk agen. Key harus punya akses gateway
+  dan saldo kredit. Alternatif: `ANTHROPIC_API_KEY` untuk memanggil Anthropic langsung.
+- `KV_REST_API_URL`, `KV_REST_API_TOKEN` : Redis (Upstash) untuk data permanen. Wajib di Vercel.
 - `NEXT_PUBLIC_PRIVY_APP_ID`, `PRIVY_APP_SECRET`: login Privy (email, SMS, X, Farcaster, Telegram) dengan embedded wallet.
   Di dashboard Privy aktifkan metode login tersebut dan tambahkan domain Anda. Tanpa app id, app memakai wallet browser (untuk dev lokal).
 - `PINATA_JWT` : upload logo ke IPFS.
@@ -44,14 +46,23 @@ Variabel penting (`.env.example`):
   `https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://<host>/api/telegram/webhook&secret_token=<SECRET>`
 - Bot X: isi kredensial `X_*` + `INTERNAL_SECRET`, jalankan `PONKR_HOST=https://<host> node scripts/x-bot.mjs`.
 
-### Produksi
+### Produksi di Vercel
+
+1. Import repo di Vercel. Set **Production Branch** ke branch yang berisi kode ini.
+2. Storage: tambahkan **Upstash for Redis** dari Vercel Marketplace dan hubungkan ke project
+   (otomatis mengisi `KV_REST_API_URL` dan `KV_REST_API_TOKEN`).
+3. Isi environment variables lain dari `.env.example`, lalu Redeploy (variabel `NEXT_PUBLIC_*` dibaca saat build).
+
+Data permanen (API key, job & thread agen, batas harian, kuota launch, penanda token via Ponkr) disimpan di Redis.
+Index token adalah cache dari chain: disimpan di memori/`/tmp` dan dibangun ulang otomatis saat server baru menyala.
+
+### Produksi di VPS / Docker
 
 ```bash
 docker build -t ponkr . && docker run -p 3000:3000 -v ponkr-data:/data --env-file .env.local ponkr
 ```
 
-Data (index launch, API key, member Club, job) disimpan sebagai file JSON di `DATA_DIR`. Cocok untuk satu
-server (VPS/Docker). Untuk multi-instance / serverless, ganti `src/lib/server/store.ts` dengan Postgres/Redis.
+Tanpa Redis, semua data disimpan sebagai file JSON di `DATA_DIR` (cocok untuk satu server).
 
 ## Cara kerja indexer
 

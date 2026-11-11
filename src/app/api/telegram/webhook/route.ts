@@ -2,7 +2,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { BRAND, CLUB } from "@/lib/config";
 import { runAgent } from "@/lib/server/agent";
 import { consume } from "@/lib/server/accounts";
-import { load, save } from "@/lib/server/store";
+import { kvGet, kvSet } from "@/lib/server/store";
 import { handle, json } from "@/lib/server/http";
 
 export const maxDuration = 120;
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       await tg("sendMessage", { chat_id: m.chat.id, text: `gm! I'm ${BRAND.name}. Ask me about any token, or say "launch a token called Moon Cat with ticker MCAT, fees to 0x…" and attach a logo.` });
       return json({ ok: true });
     }
-    if (!consume("chat", uid, CLUB.freeMessagesPerDay * 4).ok) {
+    if (!(await consume("chat", uid, CLUB.freeMessagesPerDay * 4)).ok) {
       await tg("sendMessage", { chat_id: m.chat.id, text: "Daily message limit reached. Try again tomorrow." });
       return json({ ok: true });
     }
@@ -55,11 +55,10 @@ export async function POST(req: Request) {
     const photo = m.photo?.sort((a, b) => b.width - a.width)[0];
     const image = photo ? await photoUrl(photo.file_id) : undefined;
 
-    const threads = load<Record<string, Anthropic.MessageParam[]>>("tg-threads", {});
-    const hist = (threads[uid] ?? []).concat({ role: "user", content: text });
+    const prev = await kvGet<Anthropic.MessageParam[]>(`tg-thread:${uid}`, []);
+    const hist = prev.concat({ role: "user", content: text });
     const r = await runAgent(hist, { channel: "telegram", identity: uid, attachedImage: image });
-    threads[uid] = hist.concat({ role: "assistant", content: r.text }).slice(-16);
-    save("tg-threads", threads);
+    await kvSet(`tg-thread:${uid}`, hist.concat({ role: "assistant", content: r.text }).slice(-16), 14 * 86400);
     await tg("sendMessage", { chat_id: m.chat.id, text: r.text, reply_to_message_id: undefined, disable_web_page_preview: true });
     return json({ ok: true });
   });
