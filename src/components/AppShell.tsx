@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  BarChart3, BookOpen, ChevronDown, ChevronRight, Clock, Coins, Copy, FileText, KeyRound, LifeBuoy, LogOut,
+  BarChart3, BookOpen, ChevronDown, ChevronRight, Coins, Copy, FileText, Gem, KeyRound, LifeBuoy, LogOut,
   Menu, MessageSquare, Plus, Rocket, Search, Send, Shield, Sparkles, Terminal, Trophy, Wallet, X, CandlestickChart,
 } from "lucide-react";
 import { BRAND } from "@/lib/config";
@@ -22,7 +22,6 @@ const SECTIONS: Section[] = [
       { href: "/chat", label: "Chat", icon: MessageSquare },
       { href: "/portfolio", label: "Wallet", icon: Wallet },
       { href: "/trade", label: "Trade", icon: CandlestickChart },
-      { href: "#", label: "Automations", icon: Clock, soon: true },
     ],
   },
   {
@@ -37,18 +36,16 @@ const SECTIONS: Section[] = [
   },
   {
     title: "Build",
-    collapsed: true,
     items: [
-      { href: "/api-keys", label: "API keys", icon: KeyRound },
-      { href: "/docs#api", label: "Agent API", icon: Sparkles },
-      { href: "/docs#cli", label: "CLI", icon: Terminal },
+      { href: "/llm", label: "LLM Gateway", icon: Sparkles },
+      { href: "/api-keys", label: "API Keys", icon: KeyRound },
+      { href: "/docs#api", label: "Agent API", icon: Terminal },
     ],
   },
   {
     title: "Platform",
-    collapsed: true,
     items: [
-      { href: "/club", label: "Club", icon: Sparkles },
+      { href: "/club", label: "Club", icon: Gem },
       { href: `https://t.me/${BRAND.telegramBot}`, label: "Telegram bot", icon: Send, external: true },
       { href: `https://x.com/${BRAND.twitter}`, label: "Ponkr on X", icon: X, external: true },
     ],

@@ -33,6 +33,8 @@ Variabel penting (`.env.example`):
 
 - `LLM_API_KEY` (+ `LLM_BASE_URL`, `AGENT_MODEL`) : key LLM gateway untuk agen. Key harus punya akses gateway
   dan saldo kredit. Alternatif: `ANTHROPIC_API_KEY` untuk memanggil Anthropic langsung.
+- LLM Gateway untuk pengguna (`/llm`): endpoint kompatibel OpenAI & Anthropic di `/api/llm/v1`, dibayar dari kredit prabayar.
+  Atur `LLM_MARKUP` (margin di atas harga upstream) dan `NEXT_PUBLIC_TREASURY_ADDRESS` (penerima top up ETH).
 - `KV_REST_API_URL`, `KV_REST_API_TOKEN` : Redis (Upstash) untuk data permanen. Wajib di Vercel.
 - `NEXT_PUBLIC_PRIVY_APP_ID`, `PRIVY_APP_SECRET`: login Privy (email, SMS, X, Farcaster, Telegram) dengan embedded wallet.
   Di dashboard Privy aktifkan metode login tersebut dan tambahkan domain Anda. Tanpa app id, app memakai wallet browser (untuk dev lokal).

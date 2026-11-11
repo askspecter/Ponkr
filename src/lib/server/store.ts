@@ -119,6 +119,32 @@ export async function kvIncr(key: string, ttlSec: number): Promise<number> {
   return n;
 }
 
+/** Atomic add (delta may be negative). Optional TTL is applied when the key is created. */
+export async function kvIncrBy(key: string, delta: number, ttlSec?: number): Promise<number> {
+  const d = Math.round(delta);
+  if (!kvDurable()) {
+    const prev = fileGet(key);
+    const n = Number(prev?.v ?? 0) + d;
+    save(`kv-${key}`, { v: n, exp: prev?.exp ?? (ttlSec ? Date.now() + ttlSec * 1000 : undefined) });
+    return n;
+  }
+  const n = await redis<number>(["INCRBY", PREFIX + key, d]);
+  if (ttlSec && n === d) await redis(["EXPIRE", PREFIX + key, ttlSec]);
+  return n;
+}
+
+export async function kvMGetNumbers(keys: string[]): Promise<number[]> {
+  if (!keys.length) return [];
+  if (!kvDurable()) return keys.map((k) => Number(fileGet(k)?.v ?? 0));
+  const res = await redis<(string | null)[]>(["MGET", ...keys.map((k) => PREFIX + k)]);
+  return res.map((v) => Number(v ?? 0));
+}
+
+export async function kvSIsMember(key: string, member: string): Promise<boolean> {
+  if (!kvDurable()) return ((fileGet(key)?.v as string[]) ?? []).includes(member);
+  return (await redis<number>(["SISMEMBER", PREFIX + key, member])) === 1;
+}
+
 export async function kvSAdd(key: string, member: string) {
   if (!kvDurable()) {
     const cur = (fileGet(key)?.v as string[]) ?? [];

@@ -121,6 +121,7 @@ export default function Terms() {
       <section id="fees">
         <h2>9. Fees</h2>
         <p>Trades and launches are subject to fees enforced by the launchpad smart contracts, including trading fees, an optional creator tax set by each token creator, a short anti snipe tax after launch and a launch fee. You also pay network gas fees. Current rates are described in the <Link href="/docs#fees">documentation</Link>. Fees are paid onchain at the time of the transaction and are not refundable.</p>
+        <p>LLM Gateway credits are prepaid in ETH and converted to a USD balance at the time of payment. Usage is deducted per token at the prices shown in the Service, which may change. Credits are not redeemable for cash, are not transferable, and are not refundable except where required by law.</p>
       </section>
 
       <section id="api">

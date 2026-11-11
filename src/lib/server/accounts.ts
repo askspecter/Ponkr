@@ -152,14 +152,22 @@ export async function revokeApiKey(owner: Address, id: string, nonce: string, si
 }
 
 /** Resolves X-API-Key / Bearer auth and enforces daily limits. */
-export async function authApiKey(req: Request) {
+/** Looks up the API key on the request without applying limits. */
+export async function resolveApiKey(req: Request): Promise<ApiKeyRecord | undefined> {
   const raw =
     req.headers.get("x-api-key") ||
     req.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ||
     "";
-  if (!raw) return { error: "Missing API key (X-API-Key header).", status: 401 } as const;
+  if (!raw) return undefined;
   const rec = await kvGet<ApiKeyRecord | null>(`apikey:${sha(raw)}`, null);
-  if (!rec || rec.revoked) return { error: "Invalid API key.", status: 401 } as const;
+  return rec && !rec.revoked ? rec : undefined;
+}
+
+export async function authApiKey(req: Request) {
+  const hasKey = req.headers.get("x-api-key") || req.headers.get("authorization");
+  if (!hasKey) return { error: "Missing API key (X-API-Key header).", status: 401 } as const;
+  const rec = await resolveApiKey(req);
+  if (!rec) return { error: "Invalid API key.", status: 401 } as const;
   const limit = (await isClub(rec.owner)) ? CLUB.apiDailyClub : CLUB.apiDailyFree;
   const c = await consume("api", rec.id, limit);
   if (!c.ok) return { error: `Daily API limit reached (${limit}/day).`, status: 429 } as const;

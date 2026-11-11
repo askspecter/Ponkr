@@ -79,6 +79,12 @@ export const CLUB = {
   apiDailyClub: 1000,
 };
 
+/** LLM Gateway credits: top ups are paid in ETH to the treasury and credited in USD. */
+export const LLM = {
+  treasury: (process.env.NEXT_PUBLIC_TREASURY_ADDRESS || "") as Address | "",
+  minTopUpUsd: Number(process.env.NEXT_PUBLIC_LLM_MIN_TOPUP_USD || 1),
+};
+
 export const IPFS_GATEWAY =
   process.env.NEXT_PUBLIC_IPFS_GATEWAY || "https://ipfs.io/ipfs/";
 

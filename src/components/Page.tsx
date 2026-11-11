@@ -58,7 +58,7 @@ export function SiteFooter() {
   const cols: [string, [string, string][]][] = [
     ["Product", [["Chat", "/chat"], ["Discover tokens", "/launches"], ["Launch a token", "/launch"], ["Trade", "/trade"], ["Club", "/club"]]],
     ["Data", [["Leaderboard", "/leaderboard"], ["Metrics", "/metrics"], ["Creator fees", "/fees"], ["Wallet", "/portfolio"]]],
-    ["Developers", [["Documentation", "/docs"], ["Agent API", "/docs#agent-api"], ["Launch API", "/docs#launch-api"], ["CLI", "/docs#cli"], ["API keys", "/api-keys"]]],
+    ["Developers", [["LLM Gateway", "/llm"], ["API keys", "/api-keys"], ["Documentation", "/docs"], ["Agent API", "/docs#agent-api"], ["CLI", "/docs#cli"]]],
     ["Company", [["Terms of Service", "/terms"], ["Privacy Policy", "/privacy"], ["Risk disclosure", "/terms#risk"]]],
   ];
   return (

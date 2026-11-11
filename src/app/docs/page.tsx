@@ -22,6 +22,7 @@ const toc: TocItem[] = [
   { id: "agent-api", title: "Agent API" },
   { id: "launch-api", title: "Launch API" },
   { id: "data-api", title: "Market data API" },
+  { id: "llm-gateway", title: "LLM Gateway" },
   { id: "errors", title: "Errors and limits" },
   { id: "cli", title: "CLI" },
   { id: "security", title: "Security", group: "Reference" },
@@ -357,6 +358,29 @@ curl {{HOST}}/api/v1/token-launches?limit=5`}</Code>
         <p>Quotes a buy (amount in ETH) or a sell (amount in tokens) without executing it.</p>
         <Endpoint method="GET" path="/api/v1/token-launches/{wallet}/fees" />
         <p>Returns claimable creator fees for a wallet together with an unsigned claim transaction.</p>
+      </section>
+
+      <section id="llm-gateway">
+        <h2>LLM Gateway</h2>
+        <p>
+          The LLM Gateway gives you one API key for frontier models from Anthropic, OpenAI, Google, xAI, Moonshot, Alibaba, DeepSeek and others.
+          It speaks both the OpenAI and the Anthropic API formats, so existing SDKs work by changing the base URL and key.
+        </p>
+        <T
+          head={["Endpoint", "Format"]}
+          rows={[
+            [<code key="1">POST /api/llm/v1/chat/completions</code>, "OpenAI chat completions, streaming supported"],
+            [<code key="2">POST /api/llm/v1/messages</code>, "Anthropic messages, streaming supported"],
+            [<code key="3">GET /api/llm/v1/models</code>, "Public model list with prices in USD per 1M tokens"],
+          ]}
+        />
+        <h3>Billing</h3>
+        <p>Usage is billed per token from a prepaid USD balance. Add credits with ETH on Robinhood Chain from the <Link href="/llm?tab=credits">Credits</Link> tab. Cached input tokens are billed at the cache rate where a model publishes one.</p>
+        <Code>{`curl {{HOST}}/api/llm/v1/chat/completions \\
+  -H "Authorization: Bearer $PONKR_API_KEY" \\
+  -H "content-type: application/json" \\
+  -d '{"model":"claude-sonnet-5.5","messages":[{"role":"user","content":"Hello!"}]}'`}</Code>
+        <p>See the <Link href="/llm?tab=quickstart">Quickstart</Link> for SDK examples. The gateway allows 60 requests per minute per key.</p>
       </section>
 
       <section id="errors">
