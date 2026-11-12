@@ -36,7 +36,7 @@ export default function Terms() {
     <DocLayout
       eyebrow="Legal"
       title="Terms of Service"
-      intro={<>These terms form a binding agreement between you and Kekr for your use of the website, the agent, the launchpad interface, the API, the CLI and our bots on Telegram and X. Please read them carefully, together with our <Link href="/privacy" className="text-fg underline decoration-accent underline-offset-4">Privacy Policy</Link>.</>}
+      intro={<>These terms form a binding agreement between you and Kekr for your use of the website, the agent, the launchpad interface, the API, the CLI and our bot on X. Please read them carefully, together with our <Link href="/privacy" className="text-fg underline decoration-accent underline-offset-4">Privacy Policy</Link>.</>}
       meta={`Effective ${EFFECTIVE}`}
       toc={toc}
     >
@@ -68,7 +68,7 @@ export default function Terms() {
           <li>a chat interface where an AI agent reads public chain data and prepares transactions for you to review and sign;</li>
           <li>an interface to independent launchpad smart contracts that issue tokens with a fixed supply on a bonding curve and later move liquidity to a Uniswap v4 pool;</li>
           <li>dashboards for discovery, portfolio tracking, metrics and creator fees;</li>
-          <li>an API, a command line tool and bots on Telegram and X.</li>
+          <li>an API, a command line tool and a bot on X.</li>
         </ul>
         <p>We may add, change or remove features at any time. Some features may be offered as previews and may be less reliable than the rest of the Service.</p>
       </section>

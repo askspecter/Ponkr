@@ -17,7 +17,7 @@ const toc: TocItem[] = [
   { id: "launching", title: "Launching a token" },
   { id: "fees", title: "Fees and rewards" },
   { id: "graduation", title: "Graduation" },
-  { id: "socials", title: "Telegram and X" },
+  { id: "socials", title: "Kekr on X" },
   { id: "api", title: "API overview", group: "Developers" },
   { id: "agent-api", title: "Agent API" },
   { id: "launch-api", title: "Launch API" },
@@ -239,12 +239,12 @@ export default function Docs() {
       </section>
 
       <section id="socials">
-        <h2>Telegram and X</h2>
-        <p>Talk to Kekr where you already are. Message <strong>@{BRAND.telegramBot}</strong> on Telegram, or mention <strong>@{BRAND.twitter}</strong> on X.</p>
+        <h2>Kekr on X</h2>
+        <p>Mention <strong>@{BRAND.twitter}</strong> on X to research tokens or launch one straight from a post.</p>
         <ul>
           <li>Research and market questions work the same as in the web app.</li>
           <li>Launches are gasless. Include a fee recipient address, and attach an image for the logo.</li>
-          <li>Because social accounts have no linked wallet, the fee recipient must be a Club wallet.</li>
+          <li>Because X accounts have no linked wallet, the fee recipient must be a Club wallet.</li>
           <li>Trading requires a wallet signature, so it is available in the web app only.</li>
         </ul>
         <Code lang="example">{`@${BRAND.twitter} launch Moon Cat $MCAT, fees to 0x1234...abcd`}</Code>

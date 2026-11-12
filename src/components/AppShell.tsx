@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   BarChart3, BookOpen, ChevronDown, ChevronRight, Coins, Copy, FileText, Gem, KeyRound, LifeBuoy, LogOut,
-  Menu, MessageSquare, Plus, Rocket, Search, Send, Shield, Sparkles, Terminal, Trophy, Wallet, X, CandlestickChart,
+  Menu, MessageSquare, Plus, Rocket, Search, Shield, Sparkles, Terminal, Trophy, Wallet, X, CandlestickChart,
 } from "lucide-react";
 import { BRAND } from "@/lib/config";
 import { useAuth } from "@/hooks/useAuth";
@@ -45,7 +45,6 @@ const SECTIONS: Section[] = [
     title: "Platform",
     items: [
       { href: "/club", label: "Club", icon: Gem },
-      { href: `https://t.me/${BRAND.telegramBot}`, label: "Telegram bot", icon: Send, external: true },
       { href: `https://x.com/${BRAND.twitter}`, label: "Kekr on X", icon: X, external: true },
     ],
   },
@@ -53,7 +52,7 @@ const SECTIONS: Section[] = [
     title: "Resources",
     items: [
       { href: "/docs", label: "Docs", icon: BookOpen },
-      { href: `https://t.me/${BRAND.telegramBot}`, label: "Contact support", icon: LifeBuoy, external: true },
+      { href: `https://x.com/${BRAND.twitter}`, label: "Contact support", icon: LifeBuoy, external: true },
       { href: "/terms", label: "Terms of Service", icon: FileText },
       { href: "/privacy", label: "Privacy Policy", icon: Shield },
     ],

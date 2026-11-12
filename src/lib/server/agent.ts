@@ -13,7 +13,7 @@ import { creatorFees, listTokens, resolveToken, tokenDetail, walletHoldings, typ
 import { buildBuy, buildClaim, buildLaunch, buildSell, buildSweep, quote, type TxRequest } from "./tx";
 import { tokenAbi } from "../abis";
 
-export type Channel = "web" | "api" | "telegram" | "x";
+export type Channel = "web" | "api" | "x";
 
 export interface AgentContext {
   channel: Channel;

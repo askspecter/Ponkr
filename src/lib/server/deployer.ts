@@ -24,7 +24,7 @@ function account() {
 
 const MAX_PER_DAY = Number(process.env.SPONSORED_LAUNCHES_PER_DAY || 3);
 
-/** Limits sponsored launches per identity (wallet / X user / telegram user / api key). */
+/** Limits sponsored launches per identity (wallet / X user / api key). */
 export async function checkLaunchQuota(identity: string) {
   const key = `launch-quota:${new Date().toISOString().slice(0, 10)}:${identity}`;
   const used = Number(await kvGet(key, 0));

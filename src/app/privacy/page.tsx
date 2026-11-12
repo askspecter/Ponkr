@@ -39,7 +39,7 @@ export default function Privacy() {
     <DocLayout
       eyebrow="Legal"
       title="Privacy Policy"
-      intro={<>This policy explains what information Kekr collects when you use the website, the agent, the API, the CLI and our bots, why we collect it, and the choices you have. It should be read together with our <Link href="/terms" className="text-fg underline decoration-accent underline-offset-4">Terms of Service</Link>.</>}
+      intro={<>This policy explains what information Kekr collects when you use the website, the agent, the API, the CLI and our bot on X, why we collect it, and the choices you have. It should be read together with our <Link href="/terms" className="text-fg underline decoration-accent underline-offset-4">Terms of Service</Link>.</>}
       meta={`Effective ${EFFECTIVE}`}
       toc={toc}
     >
@@ -63,7 +63,7 @@ export default function Privacy() {
             ["Launch content", "Token names, tickers, logos, descriptions and links", "You"],
             ["API usage", "API key name, a one way hash of the key, request counts", "You and the Service"],
             ["Technical data", "IP address, browser type, request timestamps", "Your device"],
-            ["Bot interactions", "Telegram or X user id, username and the messages you send to our bots", "Telegram and X"],
+            ["Bot interactions", "X user id, username and the posts you send to our bot", "X"],
           ]}
         />
         <p>We do not ask for, and you should never send us, your private keys or recovery phrases.</p>
@@ -103,7 +103,7 @@ export default function Privacy() {
             ["Cloud hosting and database", "Running the website, API and storage"],
             ["Blockchain RPC providers", "Reading chain data and broadcasting transactions"],
             ["IPFS pinning", "Storing token images you upload"],
-            ["Messaging platforms", "Delivering bot replies on Telegram and X"],
+            ["Social platform", "Delivering bot replies on X"],
           ]}
         />
         <p>We may also disclose information if required by law, to protect the rights and safety of users or the Service, or as part of a merger, acquisition or sale of assets, in which case this policy will continue to apply.</p>
@@ -116,7 +116,7 @@ export default function Privacy() {
           rows={[
             ["Agent API jobs", "7 days"],
             ["Agent API conversation threads", "30 days after last use"],
-            ["Telegram and X conversation history", "14 days after last message"],
+            ["X bot conversation history", "14 days after last message"],
             ["Daily usage counters", "2 days"],
             ["API key records", "Until you revoke them, then as needed for security"],
             ["Web chat history", "Stored in your browser only, until you clear it"],

@@ -4,7 +4,6 @@ export const BRAND = {
   name: "Kekr",
   tagline: "Your AI trading agent & token launchpad",
   twitter: process.env.NEXT_PUBLIC_X_HANDLE || "kekrbot",
-  telegramBot: process.env.NEXT_PUBLIC_TELEGRAM_BOT || "kekr_bot",
 };
 
 export const RPC_URL =
