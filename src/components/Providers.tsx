@@ -1,7 +1,7 @@
 "use client";
 
-import { PrivyProvider, usePrivy } from "@privy-io/react-auth";
-import { WagmiProvider as PrivyWagmiProvider, createConfig as createPrivyWagmiConfig } from "@privy-io/wagmi";
+import { PrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
+import { WagmiProvider as PrivyWagmiProvider, createConfig as createPrivyWagmiConfig, useSetActiveWallet } from "@privy-io/wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { WagmiProvider, createConfig, http, useAccount, useConnect, useDisconnect } from "wagmi";
@@ -12,11 +12,21 @@ import { AuthContext, type AuthState } from "@/hooks/useAuth";
 
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
 const transports = { [robinhoodChain.id]: http(RPC_URL) };
+const titleCase = (s: string) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 
 function PrivyAuthBridge({ children }: { children: React.ReactNode }) {
   const { ready, authenticated, user, login, logout, getAccessToken } = usePrivy();
   const { address } = useAccount();
+  const { wallets: connected } = useWallets();
+  const { setActiveWallet } = useSetActiveWallet();
   const value = useMemo<AuthState>(() => {
+    const wallets = connected
+      .filter((w) => w.type === "ethereum" || !("type" in w))
+      .map((w) => ({
+        address: w.address as `0x${string}`,
+        kind: (w.walletClientType === "privy" ? "embedded" : "external") as "embedded" | "external",
+        label: w.walletClientType === "privy" ? "Trading wallet" : titleCase(w.walletClientType.replace(/_/g, " ")),
+      }));
     const label =
       user?.email?.address ||
       (user?.twitter?.username && `@${user.twitter.username}`) ||
@@ -35,8 +45,13 @@ function PrivyAuthBridge({ children }: { children: React.ReactNode }) {
         const t = authenticated ? await getAccessToken() : null;
         return t ? { "x-privy-token": t } : {};
       },
+      wallets: authenticated ? wallets : [],
+      useWallet: async (a) => {
+        const w = connected.find((x) => x.address.toLowerCase() === a.toLowerCase());
+        if (w) await setActiveWallet(w);
+      },
     };
-  }, [ready, authenticated, user, address, login, logout, getAccessToken]);
+  }, [ready, authenticated, user, address, login, logout, getAccessToken, connected, setActiveWallet]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
@@ -54,6 +69,8 @@ function InjectedAuthBridge({ children }: { children: React.ReactNode }) {
       login: () => connect({ connector: injected() }),
       logout: async () => void (await disconnectAsync()),
       authHeaders: async () => ({}),
+      wallets: address ? [{ address, kind: "external" as const, label: "Browser wallet" }] : [],
+      useWallet: async () => {},
     }),
     [address, isConnected, connect, disconnectAsync],
   );

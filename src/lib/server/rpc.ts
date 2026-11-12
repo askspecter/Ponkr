@@ -56,7 +56,7 @@ interface RpcLog {
  * Raw eth_getLogs (viem's getLogs ignores a plain `topics` filter) that splits the block
  * range when the RPC rejects it for matching too many logs.
  */
-export async function getLogsAdaptive(filter: { address: Address; topics?: (Hex | null)[] }, fromBlock: bigint, toBlock: bigint): Promise<RawLog[]> {
+export async function getLogsAdaptive(filter: { address: Address; topics?: (Hex | Hex[] | null)[] }, fromBlock: bigint, toBlock: bigint): Promise<RawLog[]> {
   try {
     const res = await withRetry(
       () =>
