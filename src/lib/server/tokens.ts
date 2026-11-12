@@ -90,6 +90,15 @@ export async function resolveToken(query: string): Promise<Launch | undefined> {
     .sort((a, b) => (b.q > a.q ? 1 : -1))[0].m;
 }
 
+/** Token summary without trade history (for share cards and metadata). Looks up by address only. */
+export async function tokenSummary(address: string): Promise<TokenView | undefined> {
+  if (!isAddress(address)) return undefined;
+  const l = await ensureLaunch(address);
+  if (!l) return undefined;
+  const [live, usd] = await Promise.all([liveStates([l.curve], 30_000), prices()]);
+  return toView(l, live.get(l.curve.toLowerCase())!, usd);
+}
+
 export async function tokenDetail(query: string) {
   const l = await resolveToken(query);
   if (!l) return undefined;

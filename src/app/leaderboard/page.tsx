@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { TokenAvatar } from "@/components/TokenBits";
 import { EXPLORER } from "@/lib/config";
-import { fmtNum, fmtUsd, shortAddr } from "@/lib/format";
+import { fmtNum, fmtPrice, fmtUsd, shortAddr } from "@/lib/format";
 import type { TokenView } from "@/lib/types";
 
 interface LB { tokens: TokenView[]; creators: { creator: string; launches: number; marketCapUsd: number; raisedEth: number; best?: string }[] }
@@ -32,7 +32,7 @@ export default function Leaderboard() {
                 <tr key={t.token} className="border-t border-line/60 hover:bg-panel-2">
                   <td className="px-4 py-3 text-muted">{i + 1}</td>
                   <td><Link href={`/token/${t.token}`} className="flex items-center gap-2"><TokenAvatar t={t} size={28} /><span className="font-semibold">${t.symbol}</span><span className="hidden text-muted sm:inline">{t.name}</span></Link></td>
-                  <td className="mono">{fmtUsd(t.priceUsd)}</td>
+                  <td className="mono">{fmtPrice(t.priceUsd)}</td>
                   <td className="font-semibold">{fmtUsd(t.marketCapUsd)}</td>
                   <td>{t.live.graduated ? <span className="text-up">Graduated</span> : `${t.progress.toFixed(0)}%`}</td>
                   <td className="mono pr-4 text-muted">{shortAddr(t.creator)}</td>

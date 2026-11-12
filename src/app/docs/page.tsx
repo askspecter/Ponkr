@@ -3,7 +3,7 @@ import { Callout, Code, type TocItem } from "@/components/Doc";
 import { DocLayout } from "@/components/DocLayout";
 import { BRAND, CLUB } from "@/lib/config";
 
-export const metadata = { title: "Documentation | Kekr", description: "Everything you need to trade, launch and build with Kekr." };
+export const metadata = { title: "Documentation", description: "Everything you need to trade, launch and build with Kekr." };
 
 const hold = `${CLUB.minHold.toLocaleString("en-US")} $${CLUB.symbol}`;
 

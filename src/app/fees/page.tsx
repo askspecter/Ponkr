@@ -51,7 +51,7 @@ export default function Fees() {
         </div>
         <button className="btn btn-primary" disabled={busy || !data || BigInt(data.claimableEth) === 0n} onClick={() => act("claim")}>{busy ? "Confirm…" : "Claim ETH"}</button>
       </div>
-      {status.state === "done" && <a className="mt-2 block text-sm text-up underline" href={`${EXPLORER}/tx/${status.hash}`} target="_blank" rel="noreferrer">✓ Transaction confirmed</a>}
+      {status.state === "done" && <a className="mt-2 block text-sm text-up underline" href={`${EXPLORER}/tx/${status.hash}`} target="_blank" rel="noreferrer">Transaction confirmed</a>}
       {status.state === "error" && <p className="mt-2 text-sm text-down">{status.error}</p>}
       <h2 className="mt-10 text-lg font-semibold">Tokens you created</h2>
       <div className="card mt-3 overflow-x-auto">

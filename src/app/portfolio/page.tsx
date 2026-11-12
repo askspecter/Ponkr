@@ -8,7 +8,7 @@ import { formatUnits } from "viem";
 import { SignInButton } from "@/components/Providers";
 import { useAuth } from "@/hooks/useAuth";
 import { TokenAvatar } from "@/components/TokenBits";
-import { fmtNum, fmtUsd } from "@/lib/format";
+import { fmtNum, fmtPrice, fmtUsd } from "@/lib/format";
 import type { TokenView } from "@/lib/types";
 
 interface P { eth: string; ethUsd: number; totalUsd: number; positions: { token: TokenView; amount: number; valueUsd: number; valueEth: number }[] }
@@ -39,7 +39,7 @@ export default function Portfolio() {
                 <tr key={p.token.token} className="border-t border-line/60 hover:bg-panel-2">
                   <td className="px-4 py-3"><Link href={`/token/${p.token.token}`} className="flex items-center gap-2"><TokenAvatar t={p.token} size={28} /><span className="font-semibold">${p.token.symbol}</span></Link></td>
                   <td className="mono">{fmtNum(p.amount)}</td>
-                  <td className="mono">{fmtUsd(p.token.priceUsd)}</td>
+                  <td className="mono">{fmtPrice(p.token.priceUsd)}</td>
                   <td className="pr-4 text-right font-semibold">{fmtUsd(p.valueUsd)}</td>
                 </tr>
               ))}

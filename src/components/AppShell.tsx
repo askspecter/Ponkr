@@ -172,13 +172,14 @@ function Sidebar({ onNav }: { onNav: () => void }) {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const path = usePathname();
+  const isChat = path.startsWith("/chat");
   useEffect(() => setOpen(false), [path]);
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
   }, [open]);
 
   return (
-    <div className="min-h-screen lg:pl-64">
+    <div className={isChat ? "h-dvh overflow-hidden lg:pl-64" : "min-h-dvh lg:pl-64"}>
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-line bg-panel lg:block">
         <Sidebar onNav={() => {}} />
       </aside>
@@ -199,8 +200,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <main className="flex min-h-[calc(100dvh-3.5rem)] flex-col lg:min-h-dvh">
-        <div className="flex-1">{children}</div>
+      <main className={isChat ? "h-[calc(100dvh-3.5rem)] overflow-hidden lg:h-dvh" : "flex min-h-[calc(100dvh-3.5rem)] flex-col lg:min-h-dvh"}>
+        <div className={isChat ? "h-full" : "flex-1"}>{children}</div>
       </main>
     </div>
   );

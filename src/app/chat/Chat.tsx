@@ -121,8 +121,8 @@ export function Chat() {
   }
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-3.5rem)] max-w-3xl flex-col px-4 lg:h-dvh">
-      <div className="flex-1 space-y-5 overflow-y-auto pb-4 pt-6">
+    <div className="mx-auto flex h-full max-w-3xl flex-col px-4">
+      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain pb-4 pt-6">
         {msgs.length === 0 && (
           <div className="pt-10 text-center md:pt-20">
             <Logo className="mx-auto h-16 w-16" />
@@ -184,7 +184,7 @@ export function Chat() {
         )}
         <div ref={endRef} />
       </div>
-      <form onSubmit={(e) => { e.preventDefault(); void send(input); }} className="card-hard mb-4 flex items-end gap-2 p-2">
+      <form onSubmit={(e) => { e.preventDefault(); void send(input); }} className="card-hard mb-[max(1rem,env(safe-area-inset-bottom))] flex shrink-0 items-end gap-2 p-2">
         <label className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded border border-line text-muted hover:text-fg" title="Attach a logo image">
           {uploading ? <span className="mono text-xs">…</span> : image ? <Check size={16} className="text-acid" /> : <Paperclip size={16} />}
           <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
@@ -194,7 +194,7 @@ export function Chat() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void send(input); } }}
           rows={1}
-          placeholder={authenticated ? "Ask anything, like: buy 0.01 ETH of $MCAT" : "Ask anything. Sign in to trade and launch."}
+          placeholder="Ask Kekr anything"
           className="max-h-40 flex-1 resize-none bg-transparent px-2 py-2.5 text-sm outline-none placeholder:text-muted"
         />
         <button className="btn btn-primary h-10 w-10 shrink-0 p-0" disabled={busy || !input.trim()} aria-label="Send"><ArrowUp size={18} /></button>

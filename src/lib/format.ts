@@ -22,6 +22,14 @@ export function fmtUsd(n: number) {
   return "$" + fmtNum(n);
 }
 
+/** Prices without scientific notation: $1,234.56, $0.0421, $0.00003754. */
+export function fmtPrice(n: number, prefix = "$") {
+  if (!isFinite(n) || n <= 0) return n === 0 ? `${prefix}0` : "n/a";
+  if (n >= 1) return prefix + n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  const decimals = Math.min(14, Math.max(2, -Math.floor(Math.log10(n)) + 3));
+  return prefix + n.toFixed(decimals).replace(/0+$/, "").replace(/\.$/, "");
+}
+
 export function fmtEth(wei: bigint | string, digits = 4) {
   const v = Number(formatUnits(BigInt(wei), 18));
   return fmtNum(v, digits) + " ETH";

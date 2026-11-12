@@ -32,15 +32,16 @@ export default function Metrics() {
       </div>
       <div className="card mt-6 p-5">
         <div className="label">Launches per day</div>
-        <div className="mt-4 flex h-56 items-end gap-1.5">
+        <div className="mt-4 flex h-56 items-end gap-1 sm:gap-1.5">
           {data?.days.map((d) => (
-            <div key={d.day} className="group flex flex-1 flex-col items-center gap-2">
+            <div key={d.day} className="group flex min-w-0 flex-1 flex-col items-center gap-2">
               <div className="mono text-[10px] text-muted opacity-0 group-hover:opacity-100">{d.launches}</div>
               <div className="w-full rounded-t-[2px] bg-accent transition group-hover:bg-acid" style={{ height: `${(d.launches / max) * 170}px` }} />
-              <div className="mono text-[9px] text-muted">{d.day}</div>
+              <div className="mono hidden text-[9px] text-muted sm:block">{d.day}</div>
             </div>
           ))}
         </div>
+        {data && <div className="mono mt-2 flex justify-between text-[10px] text-muted sm:hidden"><span>{data.days[0]?.day}</span><span>Today</span></div>}
       </div>
     </PageShell>
   );

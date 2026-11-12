@@ -62,7 +62,7 @@ export function TradePanel({ t }: { t: TokenView }) {
   if (t.live.graduated) {
     return (
       <div className="card p-5 text-sm">
-        <div className="font-semibold text-up">🎓 Graduated</div>
+        <div className="label text-up">Graduated</div>
         <p className="mt-2 text-muted">Liquidity for ${t.symbol} now lives in a permanently locked Uniswap v4 pool. Trade it on any Uniswap v4 compatible interface on Robinhood Chain.</p>
         <a className="btn btn-ghost mt-4 w-full" href={`${EXPLORER}/token/${t.token}`} target="_blank" rel="noreferrer">View on explorer</a>
       </div>

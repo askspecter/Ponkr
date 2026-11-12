@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Callout, type TocItem } from "@/components/Doc";
 import { DocLayout } from "@/components/DocLayout";
 
-export const metadata = { title: "Privacy Policy | Kekr", description: "How Kekr collects, uses and protects your information." };
+export const metadata = { title: "Privacy Policy", description: "How Kekr collects, uses and protects your information." };
 
 const EFFECTIVE = "November 11, 2026";
 

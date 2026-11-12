@@ -75,9 +75,9 @@ export function Stats() {
     refetchInterval: 30_000,
   });
   const items = [
-    ["Tokens indexed", data?.totalLaunches?.toLocaleString() ?? "…"],
-    ["Launched today", data?.launches24h?.toLocaleString() ?? "…"],
-    ["ETH", data ? "$" + data.ethUsd.toLocaleString() : "…"],
+    ["Tokens", data?.totalLaunches?.toLocaleString() ?? "…"],
+    ["Last 24h", data?.launches24h?.toLocaleString() ?? "…"],
+    ["ETH", data ? "$" + Math.round(data.ethUsd).toLocaleString("en-US") : "…"],
   ];
   return (
     <div className="grid max-w-3xl grid-cols-3 gap-px overflow-hidden rounded-md border border-line bg-line">

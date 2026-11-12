@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Callout, type TocItem } from "@/components/Doc";
 import { DocLayout } from "@/components/DocLayout";
 
-export const metadata = { title: "Terms of Service | Kekr", description: "The terms that govern your use of Kekr." };
+export const metadata = { title: "Terms of Service", description: "The terms that govern your use of Kekr." };
 
 const EFFECTIVE = "November 11, 2026";
 
