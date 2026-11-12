@@ -274,7 +274,7 @@ async function runTool(name: string, input: Record<string, unknown>, ctx: AgentC
 
       let logo = (input.image_url as string | undefined) || ctx.attachedImage;
       try {
-        if (logo && logo.startsWith("http")) logo = await pinFromUrl(logo);
+        if (logo && logo.startsWith("http") && !logo.includes(".blob.vercel-storage.com")) logo = await pinFromUrl(logo);
         if (!logo && input.generate_logo) logo = await pinFile(new Blob([logoSvg(symbol)], { type: "image/svg+xml" }), `${symbol}.svg`);
       } catch (e) {
         return { error: (e as Error).message };

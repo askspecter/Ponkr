@@ -102,7 +102,7 @@ export default function Privacy() {
             ["AI model providers", "Generating agent responses"],
             ["Cloud hosting and database", "Running the website, API and storage"],
             ["Blockchain RPC providers", "Reading chain data and broadcasting transactions"],
-            ["IPFS pinning", "Storing token images you upload"],
+            ["File storage", "Storing token images you upload"],
             ["Social platform", "Delivering bot replies on X"],
           ]}
         />
@@ -120,7 +120,7 @@ export default function Privacy() {
             ["Daily usage counters", "2 days"],
             ["API key records", "Until you revoke them, then as needed for security"],
             ["Web chat history", "Stored in your browser only, until you clear it"],
-            ["Onchain and IPFS data", "Permanent, outside our control"],
+            ["Onchain data and token logos", "Permanent, outside our control"],
           ]}
         />
       </section>

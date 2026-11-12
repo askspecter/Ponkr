@@ -86,7 +86,7 @@ export async function buildSell(l: Launch, tokensIn: bigint, owner: Address, sli
 export interface LaunchInput {
   name: string;
   symbol: string;
-  logo: string; // ipfs:// URI
+  logo: string; // ipfs:// URI or https URL of stored logo
   description?: string;
   socials?: Partial<{ twitter: string; telegram: string; discord: string; website: string; farcaster: string }>;
   feeRecipient: Address;
@@ -100,7 +100,7 @@ export function validateLaunch(i: LaunchInput) {
   const symbol = i.symbol?.trim().replace(/^\$/, "").toUpperCase();
   if (!name || name.length > 32) throw new Error("Name is required (max 32 chars).");
   if (!symbol || !/^[A-Z0-9]{1,10}$/.test(symbol)) throw new Error("Symbol must be 1-10 letters/numbers.");
-  if (!i.logo || !/^ipfs:\/\//.test(i.logo)) throw new Error("Logo must be an ipfs:// URI (upload an image first).");
+  if (!i.logo || !/^(ipfs:\/\/|https:\/\/)/.test(i.logo)) throw new Error("A logo is required. Upload an image first.");
   const tax = Math.round(i.creatorTaxBps ?? 100);
   if (tax < 0 || tax > 1000) throw new Error("Creator tax must be between 0 and 10%.");
   return { name, symbol, tax, feeRecipient: getAddress(i.feeRecipient) };

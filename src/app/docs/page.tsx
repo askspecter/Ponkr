@@ -189,7 +189,7 @@ export default function Docs() {
           head={["Field", "Notes"]}
           rows={[
             ["Name and ticker", "Up to 32 characters for the name, 1 to 10 letters or digits for the ticker."],
-            ["Logo", "Stored on IPFS. PNG, JPEG, GIF or WebP up to 5 MB."],
+            ["Logo", "Stored permanently in public file storage. PNG, JPEG, GIF or WebP up to 5 MB."],
             ["Description and socials", "Shown on the token page: X, Telegram, website, Discord and Farcaster."],
             ["Fee recipient", "The wallet that receives the creator share. Defaults to you. Point it at a teammate, a treasury or a splitter contract to share fees."],
             ["Creator tax", "An extra 0 to 10% on every trade, paid entirely to the fee recipient. Fixed at launch."],

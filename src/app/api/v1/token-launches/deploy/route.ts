@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     try {
       await requireClub([a.key.owner]);
       let logo = b.image;
-      if (logo?.startsWith("http")) logo = await pinFromUrl(logo);
+      if (logo?.startsWith("http") && !logo.includes(".blob.vercel-storage.com")) logo = await pinFromUrl(logo);
       const r = await sponsoredLaunch(
         { name: b.name, symbol: b.symbol, logo, description: b.description, feeRecipient, creatorTaxBps: b.creatorTaxBps, socials: b.socials },
         `key-owner:${a.key.owner.toLowerCase()}`,

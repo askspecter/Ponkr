@@ -26,6 +26,7 @@ export function LaunchForm() {
 
   const [f, setF] = useState({ name: "", symbol: "", description: "", logo: "", twitter: "", telegram: "", website: "", discord: "", farcaster: "", feeRecipient: "", creatorTax: 1, buyback: false, initialBuy: "", mode: "wallet" as "wallet" | "sponsored" });
   const [preview, setPreview] = useState<string>();
+  const [logoError, setLogoError] = useState<string>();
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string>();
   const [busy, setBusy] = useState(false);
@@ -38,18 +39,23 @@ export function LaunchForm() {
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
 
   async function upload(file: File) {
-    setPreview(URL.createObjectURL(file));
+    setPreview(undefined);
+    setLogoError(undefined);
+    setF((x) => ({ ...x, logo: "" }));
+    if (!/^image\/(png|jpe?g|gif|webp)$/.test(file.type)) return setLogoError("Use a PNG, JPEG, GIF or WebP image.");
+    if (file.size > 5 * 1024 * 1024) return setLogoError("The image is larger than 5 MB.");
     setUploading(true);
-    setError(undefined);
     try {
       const fd = new FormData();
       fd.append("file", file);
       const r = await fetch("/api/upload", { method: "POST", body: fd });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error);
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.uri) throw new Error(j.error || "Upload failed. Please try again.");
+      // Only show the logo once it is really stored.
+      setPreview(URL.createObjectURL(file));
       setF((x) => ({ ...x, logo: j.uri }));
     } catch (e) {
-      setError((e as Error).message);
+      setLogoError((e as Error).message);
     } finally {
       setUploading(false);
     }
@@ -112,8 +118,14 @@ export function LaunchForm() {
               <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
             </label>
             <div className="flex-1">
-              <input className="input mono text-xs" value={f.logo} onChange={set("logo")} placeholder="ipfs://… (filled in after upload)" />
-              <p className="mt-1 text-xs text-muted">PNG, JPEG, GIF or WebP up to 5MB. Stored on IPFS.</p>
+              <input className="input mono text-xs" value={f.logo} onChange={set("logo")} placeholder="Filled in automatically after upload" />
+              {logoError ? (
+                <p className="mt-1 text-xs text-down">{logoError}</p>
+              ) : f.logo ? (
+                <p className="mt-1 text-xs text-up">Logo uploaded.</p>
+              ) : (
+                <p className="mt-1 text-xs text-muted">PNG, JPEG, GIF or WebP up to 5 MB. Stored permanently.</p>
+              )}
             </div>
           </div>
         </div>
