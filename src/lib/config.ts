@@ -87,6 +87,24 @@ export const LLM = {
 export const IPFS_GATEWAY =
   process.env.NEXT_PUBLIC_IPFS_GATEWAY || "https://ipfs.io/ipfs/";
 
+/** Public gateways tried in order when an IPFS image fails to load. */
+export const IPFS_GATEWAYS = [
+  process.env.NEXT_PUBLIC_IPFS_GATEWAY,
+  "https://gateway.pinata.cloud/ipfs/",
+  "https://ipfs.io/ipfs/",
+  "https://dweb.link/ipfs/",
+].filter((g, i, a): g is string => !!g && a.indexOf(g) === i);
+
+/** All candidate http URLs for a logo, best first. */
+export function logoUrls(uri?: string | null): string[] {
+  if (!uri) return [];
+  if (uri.startsWith("ipfs://")) {
+    const path = uri.slice(7).replace(/^ipfs\//, "");
+    return IPFS_GATEWAYS.map((g) => g + path);
+  }
+  return uri.startsWith("http") ? [uri] : [];
+}
+
 export function ipfsToHttp(uri?: string | null): string | undefined {
   if (!uri) return undefined;
   if (uri.startsWith("ipfs://")) return IPFS_GATEWAY + uri.slice(7);

@@ -1,22 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { ipfsToHttp } from "@/lib/config";
+import { useEffect, useMemo, useState } from "react";
+import { logoUrls } from "@/lib/config";
 import { fmtUsd, timeAgo, shortAddr } from "@/lib/format";
 import type { TokenView } from "@/lib/types";
 
 const HUES = ["#4d6bff", "#e6ff4a", "#45d69b", "#ff8a3d", "#c084fc", "#ff5d73"];
 
-export function TokenAvatar({ t, size = 40 }: { t: Pick<TokenView, "logo" | "symbol">; size?: number }) {
-  const [broken, setBroken] = useState(false);
-  const src = broken ? undefined : ipfsToHttp(t.logo);
+export function TokenAvatar({ t, size = 40, src: override }: { t: Pick<TokenView, "logo" | "symbol">; size?: number; src?: string }) {
+  const urls = useMemo(() => (override ? [override] : logoUrls(t.logo)), [override, t.logo]);
+  const [attempt, setAttempt] = useState(0);
+  // Start over whenever the logo changes.
+  useEffect(() => setAttempt(0), [urls]);
+  const src = urls[attempt];
   const hue = HUES[[...t.symbol].reduce((a, c) => a + c.charCodeAt(0), 0) % HUES.length];
   return (
     <div className="shrink-0 overflow-hidden rounded border border-line bg-panel-2" style={{ width: size, height: size }}>
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt={t.symbol} width={size} height={size} className="h-full w-full object-cover" loading="lazy" onError={() => setBroken(true)} />
+        <img key={src} src={src} alt={t.symbol} width={size} height={size} className="h-full w-full object-cover" loading="lazy" onError={() => setAttempt((a) => a + 1)} />
       ) : (
         <div className="mono flex h-full w-full items-center justify-center font-bold text-black" style={{ background: hue, fontSize: Math.max(8, size / 3.4) }}>{t.symbol.slice(0, 3)}</div>
       )}

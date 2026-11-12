@@ -162,7 +162,7 @@ export function LaunchForm() {
         <div className="card p-5">
           <div className="label">Preview</div>
           <div className="flex items-center gap-3">
-            <TokenAvatar t={{ logo: f.logo, symbol: f.symbol || "?" }} size={56} />
+            <TokenAvatar t={{ logo: f.logo, symbol: f.symbol || "?" }} src={preview} size={56} />
             <div><div className="font-semibold">{f.name || "Token name"}</div><div className="text-sm text-muted">${f.symbol || "TICKER"}</div></div>
           </div>
           <div className="mt-4"><Progress pct={0} /></div>
