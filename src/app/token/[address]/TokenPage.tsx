@@ -88,6 +88,8 @@ export function TokenPage({ address }: { address: string }) {
               <button onClick={() => copy("addr", t.token)} className="mono flex items-center gap-1.5 rounded border border-line px-2 py-1 text-muted hover:text-fg">
                 {shortAddr(t.token, 5)} {copied === "addr" ? <Check size={12} className="text-acid" /> : <Copy size={12} />}
               </button>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <span className="flex items-center gap-1.5 rounded border border-line px-2 py-1 text-muted"><img src="/robinhood-chain.png" alt="" className="h-3.5 w-3.5 rounded-sm" />Robinhood Chain</span>
               <span className="rounded border border-line px-2 py-1 text-muted">Launched {timeAgo(t.timestamp)}</span>
               <a href={`${EXPLORER}/address/${t.creator}`} target="_blank" rel="noreferrer" className="mono rounded border border-line px-2 py-1 text-muted hover:text-fg">by {shortAddr(t.creator)}</a>
               {socials.map(([k, v]) => (

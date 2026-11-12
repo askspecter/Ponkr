@@ -136,7 +136,8 @@ function WalletHeader({ tabs }: { tabs?: React.ReactNode }) {
 function ChainPill() {
   return (
     <div className="flex items-center gap-2 rounded-md border border-line bg-panel-2 px-3 py-2 text-sm">
-      <span className="flex h-5 w-5 items-center justify-center rounded bg-acid text-[10px] font-black text-black">R</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/robinhood-chain.png" alt="" className="h-5 w-5 rounded" />
       Robinhood Chain
     </div>
   );
