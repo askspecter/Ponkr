@@ -363,8 +363,9 @@ curl {{HOST}}/api/v1/token-launches?limit=5`}</Code>
       <section id="llm-gateway">
         <h2>LLM Gateway</h2>
         <p>
-          The LLM Gateway gives you one API key for frontier models from Anthropic, OpenAI, Google, xAI, Moonshot, Alibaba, DeepSeek and others.
-          It speaks both the OpenAI and the Anthropic API formats, so existing SDKs work by changing the base URL and key.
+          The LLM Gateway is a model marketplace: one API key for hundreds of models from more than fifty providers, including Anthropic,
+          OpenAI, Google, xAI, Meta, Mistral, Moonshot, Qwen and DeepSeek. It speaks both the OpenAI and the Anthropic API formats, so existing
+          SDKs work by changing the base URL and key. Browse the full catalog with live prices on the <Link href="/llm">LLM Gateway</Link> page.
         </p>
         <T
           head={["Endpoint", "Format"]}

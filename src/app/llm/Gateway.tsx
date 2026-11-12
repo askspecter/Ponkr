@@ -18,6 +18,9 @@ interface Model {
   id: string;
   name: string;
   owned_by: string;
+  description: string | null;
+  created: number | null;
+  endpoints: string[];
   context_length: number | null;
   max_output_tokens: number | null;
   input_modalities: string[];
@@ -38,8 +41,8 @@ const TABS = [["models", "Models"], ["usage", "Usage"], ["credits", "Credits"], 
 type Tab = (typeof TABS)[number][0];
 
 const usd = (n: number, d = 2) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: Math.max(d, n < 1 && n > 0 ? 4 : d) });
-const price = (n: number | null) => (n === null ? "n/a" : `$${n.toFixed(2)}`);
-const ctx = (n: number | null) => (n ? (n >= 1_000_000 ? `${n / 1_000_000}M` : `${Math.round(n / 1000)}K`) : "n/a");
+const price = (n: number | null) => (n === null ? "n/a" : n > 0 && n < 0.01 ? `$${n.toFixed(3)}` : `$${n.toFixed(2)}`);
+const ctx = (n: number | null) => (n ? (n >= 1_000_000 ? `${Math.round(n / 100_000) / 10}M` : `${Math.round(n / 1000)}K`) : "n/a");
 
 export function Gateway() {
   const params = useSearchParams();
@@ -52,7 +55,7 @@ export function Gateway() {
       <PageHeader
         eyebrow="LLM Gateway"
         title="One key for every frontier model"
-        description="Call Claude, GPT, Gemini, Grok, Kimi, Qwen, DeepSeek and more through a single OpenAI and Anthropic compatible API. Pay per token from a prepaid balance, no subscriptions."
+        description="Hundreds of models from every major lab, including Claude, GPT, Gemini, Grok, Llama, Mistral, Qwen and DeepSeek, behind one OpenAI and Anthropic compatible API. Pay per token from a prepaid balance."
         actions={<Link href="/api-keys" className="btn btn-ghost">Manage API keys</Link>}
       />
       <div className="mb-8 overflow-x-auto"><Segmented value={tab} options={TABS} onChange={setTab} /></div>
@@ -90,68 +93,146 @@ function Gated({ render }: { render: (a: Account, refetch: () => void) => React.
 
 // ---------------------------------------------------------------------------
 
+const SORTS = [
+  ["featured", "Featured"],
+  ["newest", "Newest"],
+  ["cheapest", "Lowest price"],
+  ["priciest", "Highest price"],
+  ["context", "Largest context"],
+] as const;
+type Sort = (typeof SORTS)[number][0];
+const PAGE = 24;
+
 function Models() {
   const [q, setQ] = useState("");
   const [provider, setProvider] = useState("All");
+  const [sort, setSort] = useState<Sort>("featured");
+  const [vision, setVision] = useState(false);
+  const [anthropicOnly, setAnthropicOnly] = useState(false);
+  const [shown, setShown] = useState(PAGE);
   const [copied, setCopied] = useState<string>();
   const { data, isLoading } = useQuery({
     queryKey: ["llm-models"],
     queryFn: async () => ((await (await fetch("/api/llm/v1/models")).json()) as { data: Model[] }).data ?? [],
     staleTime: 5 * 60_000,
   });
-  const providers = useMemo(() => ["All", ...Array.from(new Set((data ?? []).map((m) => m.owned_by))).sort()], [data]);
-  const list = (data ?? []).filter(
-    (m) => (provider === "All" || m.owned_by === provider) && (!q || `${m.name} ${m.id}`.toLowerCase().includes(q.toLowerCase())),
-  );
 
-  if (isLoading) return <div className="grid gap-4 md:grid-cols-2">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="card h-48 animate-pulse" />)}</div>;
+  const providers = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const m of data ?? []) counts.set(m.owned_by, (counts.get(m.owned_by) ?? 0) + 1);
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  }, [data]);
+
+  const list = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    const out = (data ?? []).filter(
+      (m) =>
+        (provider === "All" || m.owned_by === provider) &&
+        (!vision || m.input_modalities.includes("image")) &&
+        (!anthropicOnly || m.endpoints.some((e) => e.endsWith("/messages"))) &&
+        (!needle || `${m.name} ${m.id} ${m.owned_by}`.toLowerCase().includes(needle)),
+    );
+    const blended = (m: Model) => m.pricing.input * 3 + m.pricing.output;
+    if (sort === "newest") out.sort((a, b) => (b.created ?? 0) - (a.created ?? 0));
+    if (sort === "cheapest") out.sort((a, b) => blended(a) - blended(b));
+    if (sort === "priciest") out.sort((a, b) => blended(b) - blended(a));
+    if (sort === "context") out.sort((a, b) => (b.context_length ?? 0) - (a.context_length ?? 0));
+    return out;
+  }, [data, q, provider, vision, anthropicOnly, sort]);
+
+  if (isLoading) return <div className="grid gap-4 md:grid-cols-2">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="card h-56 animate-pulse" />)}</div>;
   if (!data?.length) return <EmptyState title="Models are on their way" description="The model catalog is not available right now. Please check back shortly." />;
 
+  const reset = () => setShown(PAGE);
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-1.5">
-          {providers.map((p) => (
-            <button key={p} onClick={() => setProvider(p)} className={`mono rounded border px-2.5 py-1 text-xs ${provider === p ? "border-acid bg-acid text-black" : "border-line text-muted hover:text-fg"}`}>{p}</button>
-          ))}
-        </div>
-        <label className="relative block w-full sm:w-64">
-          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-          <input className="input pl-9" placeholder="Search models" value={q} onChange={(e) => setQ(e.target.value)} />
-        </label>
-      </div>
-      <p className="mono mb-4 text-xs text-muted">{list.length} models · prices in USD per 1M tokens</p>
-      <div className="grid gap-4 md:grid-cols-2">
-        {list.map((m) => (
-          <div key={m.id} className="card flex flex-col p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="truncate font-semibold">{m.name}</div>
-                <button
-                  onClick={() => { void navigator.clipboard.writeText(m.id); setCopied(m.id); setTimeout(() => setCopied(undefined), 1200); }}
-                  className="mono mt-0.5 flex items-center gap-1.5 text-xs text-muted hover:text-fg"
-                >
-                  {m.id} {copied === m.id ? <Check size={12} className="text-acid" /> : <Copy size={12} />}
-                </button>
-              </div>
-              <span className="tag shrink-0 border border-line text-muted">{m.owned_by}</span>
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted">
-              {m.input_modalities.map((x) => <span key={x} className="tag bg-accent/15 capitalize text-accent">{x}</span>)}
-              <span className="mono">Context {ctx(m.context_length)}</span>
-              {m.max_output_tokens && <span className="mono">· Output {ctx(m.max_output_tokens)}</span>}
-            </div>
-            <div className="mt-4 grid grid-cols-4 gap-px overflow-hidden rounded border border-line bg-line text-center">
-              {[["Input", m.pricing.input], ["Output", m.pricing.output], ["Cache read", m.pricing.cache_read], ["Cache write", m.pricing.cache_write]].map(([k, v]) => (
-                <div key={k as string} className="bg-panel-2 px-2 py-2.5">
-                  <div className="mono text-[10px] uppercase tracking-wider text-muted">{k}</div>
-                  <div className="mono mt-0.5 text-sm text-fg">{price(v as number | null)}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+      <div className="mb-6 grid grid-cols-3 gap-px overflow-hidden rounded-md border border-line bg-line">
+        {[
+          ["Models", data.length.toLocaleString("en-US")],
+          ["Providers", providers.length.toLocaleString("en-US")],
+          ["From", `$${Math.min(...data.map((m) => m.pricing.input)).toFixed(2)} / 1M`],
+        ].map(([k, v]) => (
+          <div key={k} className="bg-panel px-5 py-4"><div className="label">{k}</div><div className="display text-2xl font-bold">{v}</div></div>
         ))}
       </div>
+
+      <div className="card mb-6 grid gap-3 p-3 md:grid-cols-[1fr_200px_180px]">
+        <label className="relative block">
+          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <input className="input pl-9" placeholder="Search by name, id or provider" value={q} onChange={(e) => { setQ(e.target.value); reset(); }} />
+        </label>
+        <select className="input" value={provider} onChange={(e) => { setProvider(e.target.value); reset(); }} aria-label="Provider">
+          <option value="All">All providers</option>
+          {providers.map(([p, n]) => <option key={p} value={p}>{p} ({n})</option>)}
+        </select>
+        <select className="input" value={sort} onChange={(e) => { setSort(e.target.value as Sort); reset(); }} aria-label="Sort">
+          {SORTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+        </select>
+        <div className="flex flex-wrap items-center gap-2 md:col-span-3">
+          {[
+            ["Vision input", vision, setVision],
+            ["Anthropic format", anthropicOnly, setAnthropicOnly],
+          ].map(([label, on, set]) => (
+            <button
+              key={label as string}
+              onClick={() => { (set as (v: boolean) => void)(!on); reset(); }}
+              className={`mono rounded border px-2.5 py-1 text-xs ${on ? "border-acid bg-acid text-black" : "border-line text-muted hover:text-fg"}`}
+            >
+              {label as string}
+            </button>
+          ))}
+          <span className="mono ml-auto text-xs text-muted">{list.length.toLocaleString("en-US")} results · USD per 1M tokens</span>
+        </div>
+      </div>
+
+      {!list.length ? (
+        <EmptyState title="No models match" description="Try a different search or clear the filters." />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {list.slice(0, shown).map((m) => (
+            <div key={m.id} className="card flex min-w-0 flex-col p-5 transition hover:border-accent/50">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="truncate font-semibold">{m.name}</div>
+                  <button
+                    onClick={() => { void navigator.clipboard.writeText(m.id); setCopied(m.id); setTimeout(() => setCopied(undefined), 1200); }}
+                    className="mono mt-0.5 flex max-w-full items-center gap-1.5 truncate text-xs text-muted hover:text-fg"
+                    title="Copy model id"
+                  >
+                    <span className="truncate">{m.id}</span> {copied === m.id ? <Check size={12} className="shrink-0 text-acid" /> : <Copy size={12} className="shrink-0" />}
+                  </button>
+                </div>
+                <span className="tag shrink-0 border border-line text-muted">{m.owned_by}</span>
+              </div>
+              {m.description && <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-muted">{m.description}</p>}
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted">
+                {m.input_modalities.map((x) => <span key={x} className="tag bg-accent/15 capitalize text-accent">{x}</span>)}
+                <span className="mono">Context {ctx(m.context_length)}</span>
+                {m.max_output_tokens && <span className="mono">· Output {ctx(m.max_output_tokens)}</span>}
+              </div>
+              <div className="mt-auto pt-4">
+                <div className="grid grid-cols-2 gap-px overflow-hidden rounded border border-line bg-line text-center sm:grid-cols-4">
+                  {[["Input", m.pricing.input], ["Output", m.pricing.output], ["Cache read", m.pricing.cache_read], ["Cache write", m.pricing.cache_write]].map(([k, v]) => (
+                    <div key={k as string} className="bg-panel-2 px-2 py-2.5">
+                      <div className="mono text-[10px] uppercase tracking-wider text-muted">{k}</div>
+                      <div className="mono mt-0.5 text-sm text-fg">{price(v as number | null)}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mono mt-2 flex gap-2 text-[10px] uppercase tracking-wider text-muted">
+                  <span>OpenAI format</span>
+                  {m.endpoints.some((e) => e.endsWith("/messages")) && <span>· Anthropic format</span>}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {shown < list.length && (
+        <div className="mt-8 text-center">
+          <button className="btn btn-ghost" onClick={() => setShown(shown + PAGE)}>Show more models</button>
+        </div>
+      )}
     </div>
   );
 }

@@ -7,18 +7,48 @@ import { rpc } from "./rpc";
 import { kvGet, kvIncr, kvIncrBy, kvMGetNumbers, kvSAdd, kvSIsMember, kvSMembers, kvSet } from "./store";
 
 /**
- * Ponkr LLM Gateway: an OpenAI and Anthropic compatible proxy in front of the upstream gateway.
- * Users authenticate with Ponkr API keys and pay from a prepaid USD credit balance.
+ * Ponkr LLM Gateway: an OpenAI and Anthropic compatible marketplace in front of several upstream
+ * model routers. Users authenticate with Ponkr API keys and pay from a prepaid USD balance.
  * Amounts are stored as integer micro USD (1e-6 USD).
  */
 
-const UPSTREAM = (process.env.LLM_BASE_URL || "https://llm.bankr.bot").replace(/\/$/, "");
-const UPSTREAM_KEY = process.env.LLM_API_KEY || "";
 const MARKUP = Number(process.env.LLM_MARKUP || 1);
 const RPM = Number(process.env.LLM_REQUESTS_PER_MINUTE || 60);
 const MICRO = 1_000_000;
+/** Applies the markup and rounds to a clean price (USD per 1M tokens). */
+const mk = (usdPerM: number) => Math.round(usdPerM * MARKUP * 1e6) / 1e6;
 
-export const gatewayEnabled = () => Boolean(UPSTREAM_KEY);
+type Format = "openai" | "anthropic";
+type RouteId = "primary" | "market";
+
+interface Upstream {
+  id: RouteId;
+  base: string;
+  key: string;
+  auth: (key: string) => Record<string, string>;
+  /** Whether the catalog can be read without a key. */
+  publicCatalog: boolean;
+}
+
+const UPSTREAMS: Record<RouteId, Upstream> = {
+  primary: {
+    id: "primary",
+    base: (process.env.LLM_BASE_URL || "https://llm.bankr.bot").replace(/\/$/, ""),
+    key: process.env.LLM_API_KEY || "",
+    auth: (k) => ({ "x-api-key": k }),
+    publicCatalog: false,
+  },
+  market: {
+    id: "market",
+    base: (process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api").replace(/\/$/, ""),
+    key: process.env.OPENROUTER_API_KEY || "",
+    auth: (k) => ({ authorization: `Bearer ${k}`, "x-title": "Ponkr", "http-referer": process.env.NEXT_PUBLIC_SITE_URL || "https://ponkr.app" }),
+    publicCatalog: true,
+  },
+};
+
+const enabled = (u: Upstream) => Boolean(u.key);
+export const gatewayEnabled = () => Object.values(UPSTREAMS).some(enabled);
 
 // ---------------------------------------------------------------------------
 // Models and pricing
@@ -28,9 +58,13 @@ export interface ModelInfo {
   id: string;
   name: string;
   provider: string;
+  description?: string;
+  created?: number;
   context?: number;
   maxOutput?: number;
   modalities: string[];
+  formats: Format[];
+  route: RouteId;
   /** USD per 1M tokens, Ponkr price (upstream price times markup). */
   input: number;
   output: number;
@@ -41,65 +75,131 @@ export interface ModelInfo {
 type Raw = Record<string, unknown>;
 const num = (v: unknown) => (v === undefined || v === null || v === "" ? undefined : Number(v));
 
-const PROVIDERS: [RegExp, string][] = [
-  [/^claude/, "Anthropic"], [/^gemini|^gemma/, "Google"], [/^gpt|^o\d/, "OpenAI"], [/^grok/, "xAI"], [/^kimi/, "Moonshot"],
-  [/^qwen/, "Alibaba"], [/^deepseek/, "DeepSeek"], [/^glm/, "Zhipu"], [/^minimax/, "MiniMax"], [/^muse/, "Meta"],
-];
-const providerOf = (id: string, raw?: unknown) => {
-  const known = PROVIDERS.find(([r]) => r.test(id))?.[1];
-  if (known) return known;
-  if (typeof raw === "string" && raw && !/bankr/i.test(raw)) return raw[0].toUpperCase() + raw.slice(1);
-  return "Other";
+const PROVIDER_NAMES: Record<string, string> = {
+  anthropic: "Anthropic", openai: "OpenAI", google: "Google", "x-ai": "xAI", xai: "xAI", moonshotai: "Moonshot", qwen: "Qwen",
+  deepseek: "DeepSeek", "z-ai": "Zhipu", minimax: "MiniMax", "meta-llama": "Meta", meta: "Meta", mistralai: "Mistral", cohere: "Cohere",
+  nvidia: "NVIDIA", microsoft: "Microsoft", amazon: "Amazon", baidu: "Baidu", tencent: "Tencent", xiaomi: "Xiaomi", stepfun: "StepFun",
+  perplexity: "Perplexity", "ai21": "AI21", inflection: "Inflection", liquid: "Liquid", upstage: "Upstage", ibm: "IBM", alibaba: "Alibaba",
 };
+const PREFIXES: [RegExp, string][] = [
+  [/^claude/, "Anthropic"], [/^gemini|^gemma/, "Google"], [/^gpt|^o\d/, "OpenAI"], [/^grok/, "xAI"], [/^kimi/, "Moonshot"],
+  [/^qwen/, "Qwen"], [/^deepseek/, "DeepSeek"], [/^glm/, "Zhipu"], [/^minimax/, "MiniMax"], [/^muse/, "Meta"],
+];
+const titleCase = (s: string) => s.split(/[-_ ]/).map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w)).join(" ").replace(/\bAi\b/g, "AI").replace(/\bMl\b/g, "ML");
+
+function providerOf(id: string, raw?: unknown) {
+  if (id.includes("/")) {
+    const slug = id.split("/")[0];
+    return PROVIDER_NAMES[slug] ?? titleCase(slug);
+  }
+  const known = PREFIXES.find(([r]) => r.test(id))?.[1];
+  if (known) return known;
+  if (typeof raw === "string" && raw && !/bankr|openrouter/i.test(raw)) return PROVIDER_NAMES[raw] ?? titleCase(raw);
+  return "Other";
+}
 
 function prettyName(id: string) {
   return id
     .replace(/:.*/, "")
+    .replace(/^.*\//, "")
     .split("-")
     .map((p) => (/^\d/.test(p) ? p : p.length <= 3 ? p.toUpperCase() : p[0].toUpperCase() + p.slice(1)))
     .join(" ");
 }
 
-function normalize(m: Raw): ModelInfo | undefined {
+const cleanText = (s: string) => s.replace(/bankr|openrouter/gi, "").replace(/\s{2,}/g, " ").trim();
+
+function fromPrimary(m: Raw): ModelInfo | undefined {
   const id = String(m.id ?? "");
   if (!id || /image/.test(id) || m.deprecated || m.hidden) return undefined;
   const p = (m.pricing ?? {}) as Raw;
   const input = num(p.input ?? p.prompt);
   const output = num(p.output ?? p.completion);
   if (input === undefined || output === undefined) return undefined;
-  const mod = (m.input_modalities ?? m.modalities ?? (m.architecture as Raw | undefined)?.input_modalities ?? ["text"]) as string[];
+  const mod = (m.input_modalities ?? m.modalities ?? ["text"]) as string[];
+  const cr = num(p.cache_read ?? p.input_cache_read);
+  const cw = num(p.cache_write ?? p.input_cache_write);
   return {
     id,
-    name: String(m.name ?? m.display_name ?? prettyName(id)).replace(/bankr/gi, "").trim(),
+    name: cleanText(String(m.name ?? m.display_name ?? prettyName(id))),
     provider: providerOf(id, m.provider ?? m.owned_by),
-    context: num(m.context_length ?? m.context_window ?? m.contextLength),
-    maxOutput: num(m.max_output_tokens ?? m.max_output ?? m.maxOutput),
+    context: num(m.context_length ?? m.context_window),
+    maxOutput: num(m.max_output_tokens ?? m.max_output),
     modalities: Array.isArray(mod) ? mod.filter((x) => x === "text" || x === "image") : ["text"],
-    input: input * MARKUP,
-    output: output * MARKUP,
-    cacheRead: num(p.cache_read ?? p.input_cache_read) !== undefined ? num(p.cache_read ?? p.input_cache_read)! * MARKUP : undefined,
-    cacheWrite: num(p.cache_write ?? p.input_cache_write) !== undefined ? num(p.cache_write ?? p.input_cache_write)! * MARKUP : undefined,
+    formats: ["openai", "anthropic"],
+    route: "primary",
+    input: mk(input),
+    output: mk(output),
+    cacheRead: cr !== undefined ? mk(cr) : undefined,
+    cacheWrite: cw !== undefined ? mk(cw) : undefined,
   };
 }
 
-let modelCache: { at: number; models: ModelInfo[] } | undefined;
-
-export async function listModels(): Promise<ModelInfo[]> {
-  if (modelCache && Date.now() - modelCache.at < 10 * 60_000) return modelCache.models;
-  if (!UPSTREAM_KEY) return [];
-  const r = await fetch(`${UPSTREAM}/v1/models`, { headers: { "x-api-key": UPSTREAM_KEY }, cache: "no-store", signal: AbortSignal.timeout(10_000) });
-  if (!r.ok) {
-    console.error("[llm] models fetch failed", r.status);
-    return modelCache?.models ?? [];
-  }
-  const j = (await r.json()) as { data?: Raw[] } | Raw[];
-  const raw = Array.isArray(j) ? j : (j.data ?? []);
-  const models = raw.map(normalize).filter((m): m is ModelInfo => !!m);
-  modelCache = { at: Date.now(), models };
-  return models;
+/** Marketplace catalog: prices are USD per token as strings. */
+function fromMarket(m: Raw): ModelInfo | undefined {
+  const id = String(m.id ?? "");
+  if (!id || id.startsWith("~") || /:(free|batch|beta|extended|thinking)$/.test(id) || id.startsWith("openrouter/")) return undefined;
+  const arch = (m.architecture ?? {}) as Raw;
+  const outMods = (arch.output_modalities ?? ["text"]) as string[];
+  if (!outMods.includes("text")) return undefined;
+  const p = (m.pricing ?? {}) as Raw;
+  const perM = (v: unknown) => (num(v) === undefined ? undefined : num(v)! * 1_000_000);
+  const input = perM(p.prompt);
+  const output = perM(p.completion);
+  if (input === undefined || output === undefined || input < 0 || output < 0 || input + output === 0) return undefined;
+  const endpoints = (m.endpoints ?? []) as string[];
+  const formats: Format[] = ["openai"];
+  if (endpoints.some((e) => e.endsWith("/messages"))) formats.push("anthropic");
+  const top = (m.top_provider ?? {}) as Raw;
+  const mods = (arch.input_modalities ?? ["text"]) as string[];
+  const cr = perM(p.input_cache_read);
+  const cw = perM(p.input_cache_write);
+  return {
+    id,
+    name: cleanText(String(m.name ?? prettyName(id)).replace(/^[^:]+:\s*/, "")),
+    provider: providerOf(id),
+    description: typeof m.description === "string" ? cleanText(m.description).slice(0, 220) : undefined,
+    created: num(m.created),
+    context: num(m.context_length ?? top.context_length),
+    maxOutput: num(top.max_completion_tokens),
+    modalities: mods.filter((x) => x === "text" || x === "image"),
+    formats,
+    route: "market",
+    input: mk(input),
+    output: mk(output),
+    cacheRead: cr !== undefined ? mk(cr) : undefined,
+    cacheWrite: cw !== undefined ? mk(cw) : undefined,
+  };
 }
 
-async function priceOf(model: string) {
+const catalogCache: Partial<Record<RouteId, { at: number; models: ModelInfo[] }>> = {};
+
+async function fetchCatalog(u: Upstream): Promise<ModelInfo[]> {
+  const hit = catalogCache[u.id];
+  if (hit && Date.now() - hit.at < 10 * 60_000) return hit.models;
+  if (!enabled(u)) return [];
+  try {
+    const r = await fetch(`${u.base}/v1/models`, { headers: u.key ? u.auth(u.key) : {}, cache: "no-store", signal: AbortSignal.timeout(12_000) });
+    if (!r.ok) throw new Error(String(r.status));
+    const j = (await r.json()) as { data?: Raw[] } | Raw[];
+    const raw = Array.isArray(j) ? j : (j.data ?? []);
+    const models = raw.map(u.id === "primary" ? fromPrimary : fromMarket).filter((m): m is ModelInfo => !!m);
+    catalogCache[u.id] = { at: Date.now(), models };
+    return models;
+  } catch (e) {
+    console.error(`[llm] ${u.id} catalog failed`, e);
+    return hit?.models ?? [];
+  }
+}
+
+/** Combined catalog across every configured upstream. Primary models are listed first. */
+export async function listModels(): Promise<ModelInfo[]> {
+  const [primary, market] = await Promise.all([fetchCatalog(UPSTREAMS.primary), fetchCatalog(UPSTREAMS.market)]);
+  const seen = new Set(primary.map((m) => m.id));
+  return [...primary, ...market.filter((m) => !seen.has(m.id))];
+}
+
+async function findModel(model: string) {
   const models = await listModels();
   return models.find((m) => m.id === model) ?? models.find((m) => m.id === model.replace(/:.*/, ""));
 }
@@ -203,8 +303,6 @@ export async function usageReport(wallet: string, days = 30) {
 // Proxy
 // ---------------------------------------------------------------------------
 
-type Format = "openai" | "anthropic";
-
 function errorResponse(format: Format, status: number, type: string, message: string) {
   const body = format === "anthropic" ? { type: "error", error: { type, message } } : { error: { message, type } };
   return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
@@ -212,7 +310,7 @@ function errorResponse(format: Format, status: number, type: string, message: st
 
 /** Removes upstream branding and URLs from error text before it reaches users. */
 function scrub(text: string) {
-  return text.replace(/https?:\/\/\S*bankr\S*/gi, "").replace(/bankr(\.bot)?/gi, "the gateway").replace(/\s{2,}/g, " ").trim();
+  return text.replace(/https?:\/\/\S*(bankr|openrouter)\S*/gi, "").replace(/(bankr|openrouter)(\.bot|\.ai)?/gi, "the gateway").replace(/\s{2,}/g, " ").trim();
 }
 
 function usageFrom(obj: Raw | undefined): Partial<Usage> {
@@ -248,30 +346,36 @@ export async function proxy(req: Request, format: Format) {
     return errorResponse(format, 400, "invalid_request_error", "Request body must be JSON.");
   }
   const model = String(body.model ?? "");
-  const price = model ? await priceOf(model) : undefined;
+  const price = model ? await findModel(model) : undefined;
   if (!price) return errorResponse(format, 400, "invalid_request_error", `Unknown model "${model}". See /api/llm/v1/models.`);
+  if (!price.formats.includes(format)) {
+    return errorResponse(format, 400, "invalid_request_error", `Model "${model}" is available through the OpenAI compatible endpoint (/api/llm/v1/chat/completions).`);
+  }
+  const upstream = UPSTREAMS[price.route];
+  if (!enabled(upstream)) return errorResponse(format, 503, "unavailable", "This model is temporarily unavailable.");
 
   const balance = await balanceMicro(key.owner);
   if (balance <= 0) return errorResponse(format, 402, "insufficient_credits", "Your LLM credit balance is empty. Top up at /llm.");
 
   const stream = Boolean(body.stream);
   if (stream && format === "openai") body.stream_options = { ...((body.stream_options as Raw) ?? {}), include_usage: true };
+  if (upstream.id === "market" && format === "openai") body.usage = { include: true };
 
   const path = format === "openai" ? "/v1/chat/completions" : "/v1/messages";
-  const headers: Record<string, string> = { "content-type": "application/json", "x-api-key": UPSTREAM_KEY };
+  const headers: Record<string, string> = { "content-type": "application/json", ...upstream.auth(upstream.key) };
   const av = req.headers.get("anthropic-version");
   if (format === "anthropic") headers["anthropic-version"] = av || "2023-06-01";
 
   let up: Response;
   try {
-    up = await fetch(`${UPSTREAM}${path}`, { method: "POST", headers, body: JSON.stringify(body), signal: AbortSignal.timeout(290_000) });
+    up = await fetch(`${upstream.base}${path}`, { method: "POST", headers, body: JSON.stringify(body), signal: AbortSignal.timeout(290_000) });
   } catch {
     return errorResponse(format, 504, "timeout_error", "The model provider did not respond in time.");
   }
 
   if (!up.ok) {
     const text = await up.text();
-    console.error("[llm] upstream error", up.status, text.slice(0, 300));
+    console.error(`[llm] ${upstream.id} error`, up.status, text.slice(0, 300));
     if (up.status === 401 || up.status === 402 || up.status === 403) {
       return errorResponse(format, 503, "unavailable", "The LLM Gateway is temporarily unavailable. Please try again later.");
     }

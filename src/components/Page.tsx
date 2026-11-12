@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 /** Standard page frame: one content width and rhythm across the whole app. */
 export function PageShell({ children, narrow = false }: { children: React.ReactNode; narrow?: boolean }) {
   return <div className={`mx-auto w-full px-4 py-8 md:px-8 md:py-12 ${narrow ? "max-w-3xl" : "max-w-6xl"}`}>{children}</div>;
@@ -51,40 +49,5 @@ export function Segmented<T extends string>({ value, options, onChange }: { valu
         </button>
       ))}
     </div>
-  );
-}
-
-export function SiteFooter() {
-  const cols: [string, [string, string][]][] = [
-    ["Product", [["Chat", "/chat"], ["Discover tokens", "/launches"], ["Launch a token", "/launch"], ["Trade", "/trade"], ["Club", "/club"]]],
-    ["Data", [["Leaderboard", "/leaderboard"], ["Metrics", "/metrics"], ["Creator fees", "/fees"], ["Wallet", "/portfolio"]]],
-    ["Developers", [["LLM Gateway", "/llm"], ["API keys", "/api-keys"], ["Documentation", "/docs"], ["Agent API", "/docs#agent-api"], ["CLI", "/docs#cli"]]],
-    ["Company", [["Terms of Service", "/terms"], ["Privacy Policy", "/privacy"], ["Risk disclosure", "/terms#risk"]]],
-  ];
-  return (
-    <footer className="mt-16 border-t border-line">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1.4fr_repeat(4,1fr)] md:px-8">
-        <div>
-          <div className="display text-xl font-bold">Ponkr</div>
-          <p className="mt-2 max-w-xs text-sm text-muted">The onchain agent for trading and launching tokens on Robinhood Chain.</p>
-        </div>
-        {cols.map(([title, links]) => (
-          <div key={title}>
-            <div className="label">{title}</div>
-            <ul className="space-y-2 text-sm">
-              {links.map(([l, h]) => (
-                <li key={h}><Link href={h} className="text-fg/70 transition hover:text-fg">{l}</Link></li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-      <div className="border-t border-line">
-        <div className="mono mx-auto flex max-w-6xl flex-wrap justify-between gap-2 px-4 py-5 text-[11px] text-muted md:px-8">
-          <span>© {new Date().getFullYear()} Ponkr. All rights reserved.</span>
-          <span>Digital assets are volatile. Nothing on this site is financial advice.</span>
-        </div>
-      </div>
-    </footer>
   );
 }

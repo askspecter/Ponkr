@@ -10,7 +10,6 @@ import {
 import { BRAND } from "@/lib/config";
 import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "./Logo";
-import { SiteFooter } from "./Page";
 
 type Item = { href: string; label: string; icon: React.ElementType; badge?: string; soon?: boolean; external?: boolean; highlight?: boolean };
 type Section = { title: string; items: Item[]; collapsed?: boolean };
@@ -203,7 +202,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <main className="flex min-h-[calc(100dvh-3.5rem)] flex-col lg:min-h-dvh">
         <div className="flex-1">{children}</div>
-        {!path.startsWith("/chat") && <SiteFooter />}
       </main>
     </div>
   );
