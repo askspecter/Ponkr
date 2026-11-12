@@ -81,12 +81,13 @@ export function Chat() {
           image: img,
         }),
       });
-      const j = await r.json();
-      if (!r.ok) {
+      // A platform timeout answers with plain text instead of JSON.
+      const j = (await r.json().catch(() => ({ error: "Kekr took too long on that one. Try again, or ask something narrower." }))) as { text?: string; actions?: Msg["actions"]; error?: string; upgrade?: boolean };
+      if (!r.ok || !j.text) {
         if (j.upgrade) setUpgrade(true);
         setMsgs((m) => [...m, { role: "assistant", content: j.error || "Something went wrong.", error: true }]);
       } else {
-        setMsgs((m) => [...m, { role: "assistant", content: j.text, actions: j.actions }]);
+        setMsgs((m) => [...m, { role: "assistant", content: j.text!, actions: j.actions }]);
       }
     } catch (e) {
       setMsgs((m) => [...m, { role: "assistant", content: (e as Error).message, error: true }]);

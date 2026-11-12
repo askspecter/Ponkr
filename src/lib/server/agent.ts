@@ -54,7 +54,7 @@ export const agentConfigured = () => Boolean(GATEWAY_KEY || process.env.ANTHROPI
 
 let anthropic: Anthropic | undefined;
 const client = () =>
-  (anthropic ??= useGateway ? new Anthropic({ apiKey: GATEWAY_KEY, baseURL: GATEWAY_URL, maxRetries: 2, defaultHeaders: { "x-api-key": GATEWAY_KEY } }) : new Anthropic());
+  (anthropic ??= useGateway ? new Anthropic({ apiKey: GATEWAY_KEY, baseURL: GATEWAY_URL, maxRetries: 1, timeout: 50_000, defaultHeaders: { "x-api-key": GATEWAY_KEY } }) : new Anthropic());
 
 async function callModel(system: string, messages: Anthropic.MessageParam[]): Promise<Anthropic.Message> {
   try {
@@ -383,7 +383,10 @@ export function noDashes(t: string) {
 export async function runAgent(history: Anthropic.MessageParam[], ctx: AgentContext): Promise<AgentResult> {
   const actions: AgentAction[] = [];
   const messages: Anthropic.MessageParam[] = history.slice(-20);
+  // Stay well inside the platform's request limit so the user always gets an answer.
+  const deadline = Date.now() + 95_000;
   for (let i = 0; i < 8; i++) {
+    if (Date.now() > deadline) return { text: "That one took too long. Try again, or ask something narrower.", actions };
     const res = await callModel(systemPrompt(ctx), messages);
 
     if (res.stop_reason === "refusal") {
