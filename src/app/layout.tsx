@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   applicationName: "Kekr",
   openGraph: { type: "website", siteName: "Kekr", title: TITLE, description: DESCRIPTION, url: "/" },
-  twitter: { card: "summary_large_image", site: "@kekrdotapp", creator: "@kekrdotapp", title: TITLE, description: DESCRIPTION },
+  twitter: { card: "summary_large_image", site: "@kekr_app", creator: "@kekr_app", title: TITLE, description: DESCRIPTION },
   appleWebApp: { capable: true, title: "Kekr", statusBarStyle: "black-translucent" },
 };
 

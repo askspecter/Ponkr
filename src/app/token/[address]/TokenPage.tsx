@@ -63,7 +63,7 @@ export function TokenPage({ address }: { address: string }) {
     setTimeout(() => setCopied(undefined), 1400);
   };
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-  const tweet = `https://x.com/intent/post?text=${encodeURIComponent(`$${t.symbol} on @kekrdotapp`)}&url=${encodeURIComponent(shareUrl)}`;
+  const tweet = `https://x.com/intent/post?text=${encodeURIComponent(`$${t.symbol} on @kekr_app`)}&url=${encodeURIComponent(shareUrl)}`;
 
   const tiles: [string, string, string?][] = [
     ["Price", usd ? fmtPrice(t.priceUsd) : `${fmtPrice(t.priceEth, "")} ETH`],

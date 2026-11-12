@@ -3,7 +3,7 @@ import { defineChain, type Address } from "viem";
 export const BRAND = {
   name: "Kekr",
   tagline: "Your AI trading agent & token launchpad",
-  twitter: "kekrdotapp",
+  twitter: "kekr_app",
 };
 
 export const RPC_URL =
