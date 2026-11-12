@@ -42,7 +42,7 @@ const UPSTREAMS: Record<RouteId, Upstream> = {
     id: "market",
     base: (process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api").replace(/\/$/, ""),
     key: process.env.OPENROUTER_API_KEY || "",
-    auth: (k) => ({ authorization: `Bearer ${k}`, "x-title": "Kekr", "http-referer": process.env.NEXT_PUBLIC_SITE_URL || "https://kekr.app" }),
+    auth: (k) => ({ authorization: `Bearer ${k}`, "x-title": "Kekr", "http-referer": process.env.NEXT_PUBLIC_SITE_URL || "https://www.kekr.app" }),
     publicCatalog: true,
   },
 };
