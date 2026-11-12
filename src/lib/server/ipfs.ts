@@ -13,14 +13,35 @@ export function uploadsEnabled() {
 }
 
 async function pinToIpfs(file: Blob, name: string, jwt: string) {
+  const auth = { Authorization: `Bearer ${jwt.trim()}` };
+
+  // Current Files API (needs a JWT with Files write access).
   const fd = new FormData();
   fd.append("file", file, name);
   fd.append("network", "public");
-  const r = await fetch("https://uploads.pinata.cloud/v3/files", { method: "POST", headers: { Authorization: `Bearer ${jwt}` }, body: fd });
-  if (!r.ok) throw new Error(`Logo upload failed (${r.status}). Please try again.`);
-  const j = (await r.json()) as { data?: { cid?: string } };
-  if (!j.data?.cid) throw new Error("Logo upload failed. Please try again.");
-  return `ipfs://${j.data.cid}`;
+  const r = await fetch("https://uploads.pinata.cloud/v3/files", { method: "POST", headers: auth, body: fd });
+  if (r.ok) {
+    const j = (await r.json()) as { data?: { cid?: string } };
+    if (j.data?.cid) return `ipfs://${j.data.cid}`;
+  } else {
+    console.error("[upload] pinata v3 failed", r.status, (await r.text()).slice(0, 300));
+  }
+
+  // Legacy pinning API (works with keys scoped to pinFileToIPFS).
+  const legacy = new FormData();
+  legacy.append("file", file, name);
+  const r2 = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", { method: "POST", headers: auth, body: legacy });
+  if (r2.ok) {
+    const j = (await r2.json()) as { IpfsHash?: string };
+    if (j.IpfsHash) return `ipfs://${j.IpfsHash}`;
+  } else {
+    console.error("[upload] pinata legacy failed", r2.status, (await r2.text()).slice(0, 300));
+  }
+
+  if (r.status === 401 || r.status === 403 || r2.status === 401 || r2.status === 403) {
+    throw new Error("Logo upload is temporarily unavailable. Please try again later.");
+  }
+  throw new Error("Logo upload failed. Please try again.");
 }
 
 async function putToBlob(file: Blob, name: string) {
