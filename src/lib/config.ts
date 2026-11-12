@@ -1,10 +1,10 @@
 import { defineChain, type Address } from "viem";
 
 export const BRAND = {
-  name: "Ponkr",
+  name: "Kekr",
   tagline: "Your AI trading agent & token launchpad",
-  twitter: process.env.NEXT_PUBLIC_X_HANDLE || "ponkrbot",
-  telegramBot: process.env.NEXT_PUBLIC_TELEGRAM_BOT || "ponkr_bot",
+  twitter: process.env.NEXT_PUBLIC_X_HANDLE || "kekrbot",
+  telegramBot: process.env.NEXT_PUBLIC_TELEGRAM_BOT || "kekr_bot",
 };
 
 export const RPC_URL =
@@ -72,7 +72,7 @@ export const DEFAULT_LAUNCH_CONFIG_ID = 0n;
  */
 export const CLUB = {
   token: (process.env.NEXT_PUBLIC_OFFICIAL_TOKEN_ADDRESS || "") as Address | "",
-  symbol: process.env.NEXT_PUBLIC_OFFICIAL_TOKEN_SYMBOL || "PONKR",
+  symbol: process.env.NEXT_PUBLIC_OFFICIAL_TOKEN_SYMBOL || "KEKR",
   minHold: Number(process.env.NEXT_PUBLIC_CLUB_MIN_HOLD || 1_000_000),
   freeMessagesPerDay: Number(process.env.FREE_MESSAGES_PER_DAY || 5),
   apiDailyFree: 100,

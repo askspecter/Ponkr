@@ -18,7 +18,7 @@ export default function Metrics() {
         ["Unique creators", data.creators.toLocaleString()],
         ["Combined market cap", fmtUsd(data.totalMarketCapUsd)],
         ["ETH raised on curves", `${fmtNum(data.raisedEth)} ETH`],
-        ["Launched via Ponkr", data.appLaunches.toLocaleString()],
+        ["Launched via Kekr", data.appLaunches.toLocaleString()],
         ["ETH price", fmtUsd(data.ethUsd)],
       ]
     : [];

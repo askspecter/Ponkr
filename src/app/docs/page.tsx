@@ -3,7 +3,7 @@ import { Callout, Code, type TocItem } from "@/components/Doc";
 import { DocLayout } from "@/components/DocLayout";
 import { BRAND, CLUB } from "@/lib/config";
 
-export const metadata = { title: "Documentation | Ponkr", description: "Everything you need to trade, launch and build with Ponkr." };
+export const metadata = { title: "Documentation | Kekr", description: "Everything you need to trade, launch and build with Kekr." };
 
 const hold = `${CLUB.minHold.toLocaleString("en-US")} $${CLUB.symbol}`;
 
@@ -12,7 +12,7 @@ const toc: TocItem[] = [
   { id: "quickstart", title: "Quickstart" },
   { id: "accounts", title: "Accounts and wallets" },
   { id: "club", title: "Club membership" },
-  { id: "agent", title: "The agent", group: "Using Ponkr" },
+  { id: "agent", title: "The agent", group: "Using Kekr" },
   { id: "trading", title: "Trading" },
   { id: "launching", title: "Launching a token" },
   { id: "fees", title: "Fees and rewards" },
@@ -55,15 +55,15 @@ export default function Docs() {
   return (
     <DocLayout
       eyebrow="Documentation"
-      title="Build, trade and launch with Ponkr"
-      intro={<>Ponkr is an onchain agent for Robinhood Chain. This guide covers the product end to end: how accounts work, how the launchpad prices and graduates tokens, how creators earn, and how to integrate through the API and CLI.</>}
+      title="Build, trade and launch with Kekr"
+      intro={<>Kekr is an onchain agent for Robinhood Chain. This guide covers the product end to end: how accounts work, how the launchpad prices and graduates tokens, how creators earn, and how to integrate through the API and CLI.</>}
       toc={toc}
     >
       <section id="introduction">
         <h2>Introduction</h2>
         <p>
-          Ponkr turns plain language into onchain actions. Ask it what is trending, how a token is doing, or to buy, sell or launch, and it
-          answers with live data and a ready to sign transaction. Every token launched through Ponkr trades on a fair bonding curve and
+          Kekr turns plain language into onchain actions. Ask it what is trending, how a token is doing, or to buy, sell or launch, and it
+          answers with live data and a ready to sign transaction. Every token launched through Kekr trades on a fair bonding curve and
           graduates into a permanently locked Uniswap v4 pool.
         </p>
         <T
@@ -78,7 +78,7 @@ export default function Docs() {
           ]}
         />
         <Callout title="Non custodial by design">
-          Ponkr never holds your funds or your keys. Trades and wallet launches are prepared by Ponkr and signed by you. Nothing moves until you confirm it in your wallet.
+          Kekr never holds your funds or your keys. Trades and wallet launches are prepared by Kekr and signed by you. Nothing moves until you confirm it in your wallet.
         </Callout>
       </section>
 
@@ -116,7 +116,7 @@ export default function Docs() {
       <section id="club">
         <h2>Club membership</h2>
         <p>
-          Club is the membership tier for builders on Ponkr. There is nothing to buy or renew: membership is read live from your wallet. Hold at
+          Club is the membership tier for builders on Kekr. There is nothing to buy or renew: membership is read live from your wallet. Hold at
           least <strong>{hold}</strong> in the wallet you sign in with and you are in.
         </p>
         <T
@@ -167,7 +167,7 @@ export default function Docs() {
         <h3>Anti snipe protection</h3>
         <p>Buys in the first seconds after a launch pay a steep, rapidly decaying tax that starts near 99%. This removes the advantage of bots buying in the same block as the launch. Creators can buy in the launch transaction itself, which is exempt.</p>
         <h3>After graduation</h3>
-        <p>Graduated tokens trade in their Uniswap v4 pool. Their prices and market caps on Ponkr are read directly from that pool.</p>
+        <p>Graduated tokens trade in their Uniswap v4 pool. Their prices and market caps on Kekr are read directly from that pool.</p>
       </section>
 
       <section id="launching">
@@ -200,7 +200,7 @@ export default function Docs() {
         <h3>Launch modes</h3>
         <ul>
           <li><strong>Your wallet:</strong> you pay the launch fee and gas, and can include an initial buy.</li>
-          <li><strong>Gasless:</strong> Ponkr pays the launch and you sign a free message. The fee recipient is still you. Limited per day.</li>
+          <li><strong>Gasless:</strong> Kekr pays the launch and you sign a free message. The fee recipient is still you. Limited per day.</li>
         </ul>
       </section>
 
@@ -240,7 +240,7 @@ export default function Docs() {
 
       <section id="socials">
         <h2>Telegram and X</h2>
-        <p>Talk to Ponkr where you already are. Message <strong>@{BRAND.telegramBot}</strong> on Telegram, or mention <strong>@{BRAND.twitter}</strong> on X.</p>
+        <p>Talk to Kekr where you already are. Message <strong>@{BRAND.telegramBot}</strong> on Telegram, or mention <strong>@{BRAND.twitter}</strong> on X.</p>
         <ul>
           <li>Research and market questions work the same as in the web app.</li>
           <li>Launches are gasless. Include a fee recipient address, and attach an image for the logo.</li>
@@ -256,13 +256,13 @@ export default function Docs() {
         <T
           head={["Item", "Value"]}
           rows={[
-            ["Base URL", <code key="b">{"<your Ponkr domain>/api/v1"}</code>],
+            ["Base URL", <code key="b">{"<your Kekr domain>/api/v1"}</code>],
             ["Authentication", <><code>X-API-Key</code> header, or <code>Authorization: Bearer</code></>],
             ["Keys", <><Link key="k" href="/api-keys">API keys</Link>, created by signing a free message with your wallet</>],
             ["Format", "JSON request and response bodies, amounts as strings in wei unless noted"],
           ]}
         />
-        <Code>{`export PONKR_API_KEY=pk_your_key
+        <Code>{`export KEKR_API_KEY=pk_your_key
 curl {{HOST}}/api/v1/token-launches?limit=5`}</Code>
         <Callout kind="warn" title="Keep keys secret">API keys act on behalf of your wallet. Never embed them in client side code or share them publicly. Revoke a key at any time from the API keys page.</Callout>
       </section>
@@ -280,7 +280,7 @@ curl {{HOST}}/api/v1/token-launches?limit=5`}</Code>
           ]}
         />
         <Code>{`curl -X POST {{HOST}}/api/v1/agent/prompt \\
-  -H "X-API-Key: $PONKR_API_KEY" \\
+  -H "X-API-Key: $KEKR_API_KEY" \\
   -H "content-type: application/json" \\
   -d '{"prompt":"what are the top 5 tokens by market cap?"}'
 
@@ -327,7 +327,7 @@ curl {{HOST}}/api/v1/token-launches?limit=5`}</Code>
           ]}
         />
         <Code>{`curl -X POST {{HOST}}/api/v1/token-launches/deploy \\
-  -H "X-API-Key: $PONKR_API_KEY" \\
+  -H "X-API-Key: $KEKR_API_KEY" \\
   -H "content-type: application/json" \\
   -d '{
     "name": "Moon Cat",
@@ -378,7 +378,7 @@ curl {{HOST}}/api/v1/token-launches?limit=5`}</Code>
         <h3>Billing</h3>
         <p>Usage is billed per token from a prepaid USD balance. Add credits with ETH on Robinhood Chain from the <Link href="/llm?tab=credits">Credits</Link> tab. Cached input tokens are billed at the cache rate where a model publishes one.</p>
         <Code>{`curl {{HOST}}/api/llm/v1/chat/completions \\
-  -H "Authorization: Bearer $PONKR_API_KEY" \\
+  -H "Authorization: Bearer $KEKR_API_KEY" \\
   -H "content-type: application/json" \\
   -d '{"model":"claude-sonnet-5.5","messages":[{"role":"user","content":"Hello!"}]}'`}</Code>
         <p>See the <Link href="/llm?tab=quickstart">Quickstart</Link> for SDK examples. The gateway allows 60 requests per minute per key.</p>
@@ -411,20 +411,20 @@ curl {{HOST}}/api/v1/token-launches?limit=5`}</Code>
 
       <section id="cli">
         <h2>CLI</h2>
-        <p>The command line tool wraps the API for scripts and terminals. It ships with the Ponkr source code.</p>
+        <p>The command line tool wraps the API for scripts and terminals. It ships with the Kekr source code.</p>
         <Code>{`# from the repository root
 npm install -g ./cli
 
-export PONKR_HOST={{HOST}}
-export PONKR_API_KEY=pk_your_key`}</Code>
+export KEKR_HOST={{HOST}}
+export KEKR_API_KEY=pk_your_key`}</Code>
         <T
           head={["Command", "Description"]}
           rows={[
-            [<code key="1">ponkr launches --sort mcap</code>, "List tokens by latest, mcap, progress or graduated."],
-            [<code key="2">ponkr token MCAT</code>, "Show a token by ticker or address."],
-            [<code key="3">ponkr launch --name &quot;Moon Cat&quot; --symbol MCAT --image ./cat.png</code>, "Launch gaslessly. Uploads local images automatically."],
-            [<code key="4">ponkr fees 0x...</code>, "Show claimable fees for a wallet."],
-            [<code key="5">ponkr prompt &quot;what is trending?&quot;</code>, "Ask the agent and wait for the answer."],
+            [<code key="1">kekr launches --sort mcap</code>, "List tokens by latest, mcap, progress or graduated."],
+            [<code key="2">kekr token MCAT</code>, "Show a token by ticker or address."],
+            [<code key="3">kekr launch --name &quot;Moon Cat&quot; --symbol MCAT --image ./cat.png</code>, "Launch gaslessly. Uploads local images automatically."],
+            [<code key="4">kekr fees 0x...</code>, "Show claimable fees for a wallet."],
+            [<code key="5">kekr prompt &quot;what is trending?&quot;</code>, "Ask the agent and wait for the answer."],
           ]}
         />
       </section>
@@ -432,7 +432,7 @@ export PONKR_API_KEY=pk_your_key`}</Code>
       <section id="security">
         <h2>Security</h2>
         <ul>
-          <li><strong>Non custodial.</strong> Ponkr cannot move your funds. Every transaction is signed in your wallet.</li>
+          <li><strong>Non custodial.</strong> Kekr cannot move your funds. Every transaction is signed in your wallet.</li>
           <li><strong>Simulated first.</strong> Launch transactions are simulated against the chain before you are asked to sign.</li>
           <li><strong>Locked liquidity.</strong> Graduated liquidity is held by a locker contract permanently.</li>
           <li><strong>Fixed supply.</strong> Token supply cannot be increased after launch.</li>
@@ -443,7 +443,7 @@ export PONKR_API_KEY=pk_your_key`}</Code>
 
       <section id="faq">
         <h2>FAQ</h2>
-        <h3>Does Ponkr hold my keys?</h3>
+        <h3>Does Kekr hold my keys?</h3>
         <p>No. Embedded wallets are secured by the authentication provider and only you can authorize transactions.</p>
         <h3>Why can&apos;t I launch?</h3>
         <p>Launching requires Club membership. Hold {hold} in the wallet you sign in with, then refresh the <Link href="/club">Club</Link> page.</p>

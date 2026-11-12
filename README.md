@@ -1,6 +1,6 @@
-# Ponkr : AI trading agent & token launchpad (Robinhood Chain)
+# Kekr : AI trading agent & token launchpad (Robinhood Chain)
 
-Ponkr adalah platform agen AI untuk **riset, trading, dan launch token** lewat chat, dibangun di atas
+Kekr adalah platform agen AI untuk **riset, trading, dan launch token** lewat chat, dibangun di atas
 kontrak launchpad bonding-curve yang sudah live di **Robinhood Chain** (chain id `4663`).
 
 ## Fitur
@@ -11,7 +11,7 @@ kontrak launchpad bonding-curve yang sudah live di **Robinhood Chain** (chain id
 | Launchpad: supply 1B tetap, bonding curve ETH, auto-graduate ke pool Uniswap v4 yang LP-nya dikunci permanen | `/launch` |
 | Launch dari wallet sendiri (+ initial buy anti-snipe) **atau** gas-free (wallet platform yang bayar, fee 100% ke user) | `src/lib/server/tx.ts`, `deployer.ts` |
 | Fee recipient bisa diarahkan ke alamat lain, creator tax 0–10%, opsi buyback | form launch |
-| Daftar launch live dari chain (new / top mcap / mau graduate / graduated / launched via Ponkr) + search | `/launches` |
+| Daftar launch live dari chain (new / top mcap / mau graduate / graduated / launched via Kekr) + search | `/launches` |
 | Halaman token: chart candlestick, histori trade, panel buy/sell dengan quote & slippage, progress bonding curve, harga pool v4 untuk token graduated | `/token/[address]` |
 | Leaderboard token & creator | `/leaderboard` |
 | Portfolio wallet | `/portfolio` |
@@ -19,7 +19,7 @@ kontrak launchpad bonding-curve yang sudah live di **Robinhood Chain** (chain id
 | Club berbasis kepemilikan token: hold minimal 1M token resmi. Hanya member Club yang bisa launch (semua channel), plus unlimited chat dan limit API lebih tinggi | `/club`, `src/lib/server/accounts.ts` |
 | API key (login tanda tangan wallet), Agent API (prompt → job → polling), Launch API, endpoint publik | `/api-keys`, `/docs` |
 | Bot Telegram (webhook) dan bot X (worker polling mention) | `api/telegram/webhook`, `scripts/x-bot.mjs` |
-| CLI | `cli/ponkr.mjs` |
+| CLI | `cli/kekr.mjs` |
 
 ## Menjalankan
 
@@ -43,11 +43,11 @@ Variabel penting (`.env.example`):
 - `DEPLOYER_PRIVATE_KEY` : wallet platform untuk launch gas-free (isi sedikit ETH di Robinhood Chain). Kosongkan untuk mematikan.
 - `NEXT_PUBLIC_OFFICIAL_TOKEN_ADDRESS`, `NEXT_PUBLIC_OFFICIAL_TOKEN_SYMBOL`, `NEXT_PUBLIC_CLUB_MIN_HOLD` : token resmi dan syarat Club (default 1.000.000).
   Selama alamat token resmi belum diisi, hanya wallet di `CLUB_ALLOWLIST` yang dianggap Club, supaya tim bisa me-launch token resmi itu sendiri.
-- Catatan: pembatasan ini berlaku di semua jalur Ponkr (web, agen, API, Telegram, X). Kontrak launchpad di chain sendiri tetap terbuka,
-  jadi orang yang memanggil kontrak langsung tanpa Ponkr tidak bisa dicegah, dan token itu tidak akan bertanda "Ponkr".
+- Catatan: pembatasan ini berlaku di semua jalur Kekr (web, agen, API, Telegram, X). Kontrak launchpad di chain sendiri tetap terbuka,
+  jadi orang yang memanggil kontrak langsung tanpa Kekr tidak bisa dicegah, dan token itu tidak akan bertanda "Kekr".
 - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` : lalu set webhook:
   `https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://<host>/api/telegram/webhook&secret_token=<SECRET>`
-- Bot X: isi kredensial `X_*` + `INTERNAL_SECRET`, jalankan `PONKR_HOST=https://<host> node scripts/x-bot.mjs`.
+- Bot X: isi kredensial `X_*` + `INTERNAL_SECRET`, jalankan `KEKR_HOST=https://<host> node scripts/x-bot.mjs`.
 
 ### Produksi di Vercel
 
@@ -56,13 +56,13 @@ Variabel penting (`.env.example`):
    (otomatis mengisi `KV_REST_API_URL` dan `KV_REST_API_TOKEN`).
 3. Isi environment variables lain dari `.env.example`, lalu Redeploy (variabel `NEXT_PUBLIC_*` dibaca saat build).
 
-Data permanen (API key, job & thread agen, batas harian, kuota launch, penanda token via Ponkr) disimpan di Redis.
+Data permanen (API key, job & thread agen, batas harian, kuota launch, penanda token via Kekr) disimpan di Redis.
 Index token adalah cache dari chain: disimpan di memori/`/tmp` dan dibangun ulang otomatis saat server baru menyala.
 
 ### Produksi di VPS / Docker
 
 ```bash
-docker build -t ponkr . && docker run -p 3000:3000 -v ponkr-data:/data --env-file .env.local ponkr
+docker build -t kekr . && docker run -p 3000:3000 -v kekr-data:/data --env-file .env.local kekr
 ```
 
 Tanpa Redis, semua data disimpan sebagai file JSON di `DATA_DIR` (cocok untuk satu server).

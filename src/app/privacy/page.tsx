@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Callout, type TocItem } from "@/components/Doc";
 import { DocLayout } from "@/components/DocLayout";
 
-export const metadata = { title: "Privacy Policy | Ponkr", description: "How Ponkr collects, uses and protects your information." };
+export const metadata = { title: "Privacy Policy | Kekr", description: "How Kekr collects, uses and protects your information." };
 
 const EFFECTIVE = "November 11, 2026";
 
@@ -39,17 +39,17 @@ export default function Privacy() {
     <DocLayout
       eyebrow="Legal"
       title="Privacy Policy"
-      intro={<>This policy explains what information Ponkr collects when you use the website, the agent, the API, the CLI and our bots, why we collect it, and the choices you have. It should be read together with our <Link href="/terms" className="text-fg underline decoration-accent underline-offset-4">Terms of Service</Link>.</>}
+      intro={<>This policy explains what information Kekr collects when you use the website, the agent, the API, the CLI and our bots, why we collect it, and the choices you have. It should be read together with our <Link href="/terms" className="text-fg underline decoration-accent underline-offset-4">Terms of Service</Link>.</>}
       meta={`Effective ${EFFECTIVE}`}
       toc={toc}
     >
       <Callout title="In short">
-        We collect only what we need to run Ponkr: a sign in identifier, your wallet address, the messages you send to the agent and basic usage counters. We never have access to your private keys, and we do not sell your personal information.
+        We collect only what we need to run Kekr: a sign in identifier, your wallet address, the messages you send to the agent and basic usage counters. We never have access to your private keys, and we do not sell your personal information.
       </Callout>
 
       <section id="overview">
         <h2>1. Overview</h2>
-        <p>Ponkr is a non custodial interface for Robinhood Chain. Most of what you do with Ponkr happens on a public blockchain, which we do not control. This policy covers information that Ponkr itself processes when you use the Service.</p>
+        <p>Kekr is a non custodial interface for Robinhood Chain. Most of what you do with Kekr happens on a public blockchain, which we do not control. This policy covers information that Kekr itself processes when you use the Service.</p>
       </section>
 
       <section id="collect">
@@ -71,7 +71,7 @@ export default function Privacy() {
 
       <section id="onchain">
         <h2>3. Public blockchain data</h2>
-        <p>Transactions on Robinhood Chain, including trades, launches, balances and wallet addresses, are public and permanent by design. Ponkr reads this public data to show prices, portfolios, leaderboards and metrics. We cannot modify or delete information recorded on a blockchain. Token logos and metadata stored on IPFS are also public and cannot be removed by us.</p>
+        <p>Transactions on Robinhood Chain, including trades, launches, balances and wallet addresses, are public and permanent by design. Kekr reads this public data to show prices, portfolios, leaderboards and metrics. We cannot modify or delete information recorded on a blockchain. Token logos and metadata stored on IPFS are also public and cannot be removed by us.</p>
       </section>
 
       <section id="use">
@@ -132,7 +132,7 @@ export default function Privacy() {
 
       <section id="security">
         <h2>9. Security</h2>
-        <p>We protect information with encryption in transit, access controls and minimal data collection. API keys are stored only as one way hashes. Embedded wallets are secured by our authentication provider so that Ponkr cannot access private keys. No system is perfectly secure, so please protect your sign in methods and devices.</p>
+        <p>We protect information with encryption in transit, access controls and minimal data collection. API keys are stored only as one way hashes. Embedded wallets are secured by our authentication provider so that Kekr cannot access private keys. No system is perfectly secure, so please protect your sign in methods and devices.</p>
       </section>
 
       <section id="rights">

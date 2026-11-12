@@ -105,7 +105,7 @@ export async function ensureLaunch(token: Address): Promise<Launch | undefined> 
 }
 
 /**
- * Records a token as launched through Ponkr (durable). For wallet launches this is the predicted
+ * Records a token as launched through Kekr (durable). For wallet launches this is the predicted
  * address; it only shows up in the UI if a launch with that address actually lands on chain.
  */
 export async function markViaApp(token: string) {
@@ -117,7 +117,7 @@ export async function markViaApp(token: string) {
 
 let appSet: { at: number; set: Set<string> } | undefined;
 
-/** Applies the durable "launched via Ponkr" set to the in-memory index (refreshed every 30s). */
+/** Applies the durable "launched via Kekr" set to the in-memory index (refreshed every 30s). */
 export async function refreshViaApp() {
   if (appSet && Date.now() - appSet.at < 30_000) return appSet.set;
   const set = new Set(await kvSMembers("app-launches").catch(() => [] as string[]));

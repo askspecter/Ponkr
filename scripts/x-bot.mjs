@@ -4,13 +4,13 @@
  * and replies. Requires X API v2 access with user-context OAuth 1.0a keys for posting.
  *
  * env: X_BEARER_TOKEN, X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET, X_BOT_USER_ID,
- *      PONKR_HOST (e.g. http://localhost:3000), INTERNAL_SECRET, X_POLL_SECONDS (default 60)
+ *      KEKR_HOST (e.g. http://localhost:3000), INTERNAL_SECRET, X_POLL_SECONDS (default 60)
  */
 import crypto from "node:crypto";
 import fs from "node:fs";
 
 const env = process.env;
-const HOST = env.PONKR_HOST || "http://localhost:3000";
+const HOST = env.KEKR_HOST || "http://localhost:3000";
 const STATE = ".data/x-bot-state.json";
 const need = ["X_BEARER_TOKEN", "X_API_KEY", "X_API_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_SECRET", "X_BOT_USER_ID", "INTERNAL_SECRET"];
 for (const k of need) if (!env[k]) { console.error(`missing ${k}`); process.exit(1); }

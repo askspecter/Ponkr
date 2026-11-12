@@ -2,8 +2,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const HOST = (process.env.PONKR_HOST || "http://localhost:3000").replace(/\/$/, "");
-const KEY = process.env.PONKR_API_KEY;
+const HOST = (process.env.KEKR_HOST || "http://localhost:3000").replace(/\/$/, "");
+const KEY = process.env.KEKR_API_KEY;
 const [, , cmd, ...rest] = process.argv;
 
 function flags(args) {
@@ -37,8 +37,8 @@ try {
       break;
     }
     case "launch": {
-      if (!KEY) throw new Error("Set PONKR_API_KEY");
-      if (!f.name || !f.symbol || !f.image) throw new Error("Usage: ponkr launch --name <name> --symbol <TICKER> --image <url|file> [--fee-recipient 0x…] [--description …] [--tax 1]");
+      if (!KEY) throw new Error("Set KEKR_API_KEY");
+      if (!f.name || !f.symbol || !f.image) throw new Error("Usage: kekr launch --name <name> --symbol <TICKER> --image <url|file> [--fee-recipient 0x…] [--description …] [--tax 1]");
       let image = f.image;
       if (!/^(https?|ipfs):\/\//.test(image)) {
         const buf = fs.readFileSync(image);
@@ -64,7 +64,7 @@ try {
       break;
     }
     case "prompt": {
-      if (!KEY) throw new Error("Set PONKR_API_KEY");
+      if (!KEY) throw new Error("Set KEKR_API_KEY");
       const { jobId } = await api("/api/v1/agent/prompt", { method: "POST", body: JSON.stringify({ prompt: f._.join(" "), threadId: f.thread }) });
       for (;;) {
         await new Promise((r) => setTimeout(r, 2000));
@@ -75,7 +75,7 @@ try {
       break;
     }
     default:
-      console.log(`ponkr <command>\n  launches [--sort latest|mcap|progress|graduated] [--limit 20]\n  token <ticker|address>\n  launch --name --symbol --image [--fee-recipient] [--description] [--tax]\n  fees <wallet>\n  prompt "<text>"\n\nenv: PONKR_HOST, PONKR_API_KEY`);
+      console.log(`kekr <command>\n  launches [--sort latest|mcap|progress|graduated] [--limit 20]\n  token <ticker|address>\n  launch --name --symbol --image [--fee-recipient] [--description] [--tax]\n  fees <wallet>\n  prompt "<text>"\n\nenv: KEKR_HOST, KEKR_API_KEY`);
   }
 } catch (e) {
   console.error("error:", e.message);

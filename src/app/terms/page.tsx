@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Callout, type TocItem } from "@/components/Doc";
 import { DocLayout } from "@/components/DocLayout";
 
-export const metadata = { title: "Terms of Service | Ponkr", description: "The terms that govern your use of Ponkr." };
+export const metadata = { title: "Terms of Service | Kekr", description: "The terms that govern your use of Kekr." };
 
 const EFFECTIVE = "November 11, 2026";
 
@@ -36,17 +36,17 @@ export default function Terms() {
     <DocLayout
       eyebrow="Legal"
       title="Terms of Service"
-      intro={<>These terms form a binding agreement between you and Ponkr for your use of the website, the agent, the launchpad interface, the API, the CLI and our bots on Telegram and X. Please read them carefully, together with our <Link href="/privacy" className="text-fg underline decoration-accent underline-offset-4">Privacy Policy</Link>.</>}
+      intro={<>These terms form a binding agreement between you and Kekr for your use of the website, the agent, the launchpad interface, the API, the CLI and our bots on Telegram and X. Please read them carefully, together with our <Link href="/privacy" className="text-fg underline decoration-accent underline-offset-4">Privacy Policy</Link>.</>}
       meta={`Effective ${EFFECTIVE}`}
       toc={toc}
     >
       <Callout kind="warn" title="Summary of the essentials">
-        Ponkr is non custodial software. You control your wallet and you sign every transaction. Digital assets, and tokens launched on bonding curves in particular, are highly volatile and can lose all of their value. Nothing on Ponkr is financial, legal or tax advice.
+        Kekr is non custodial software. You control your wallet and you sign every transaction. Digital assets, and tokens launched on bonding curves in particular, are highly volatile and can lose all of their value. Nothing on Kekr is financial, legal or tax advice.
       </Callout>
 
       <section id="acceptance">
         <h2>1. Acceptance</h2>
-        <p>By accessing or using Ponkr (the &ldquo;Service&rdquo;) you confirm that you have read, understood and agree to be bound by these Terms of Service (the &ldquo;Terms&rdquo;). If you use the Service on behalf of an organization, you agree to these Terms on its behalf and confirm you have authority to do so. If you do not agree, do not use the Service.</p>
+        <p>By accessing or using Kekr (the &ldquo;Service&rdquo;) you confirm that you have read, understood and agree to be bound by these Terms of Service (the &ldquo;Terms&rdquo;). If you use the Service on behalf of an organization, you agree to these Terms on its behalf and confirm you have authority to do so. If you do not agree, do not use the Service.</p>
       </section>
 
       <section id="eligibility">
@@ -63,7 +63,7 @@ export default function Terms() {
 
       <section id="service">
         <h2>3. The service</h2>
-        <p>Ponkr provides an interface and an AI agent that help you research, trade and launch tokens on Robinhood Chain. The Service includes:</p>
+        <p>Kekr provides an interface and an AI agent that help you research, trade and launch tokens on Robinhood Chain. The Service includes:</p>
         <ul>
           <li>a chat interface where an AI agent reads public chain data and prepares transactions for you to review and sign;</li>
           <li>an interface to independent launchpad smart contracts that issue tokens with a fixed supply on a bonding curve and later move liquidity to a Uniswap v4 pool;</li>
@@ -86,7 +86,7 @@ export default function Terms() {
 
       <section id="non-custodial">
         <h2>5. Non custodial service</h2>
-        <p>Ponkr does not take custody of your digital assets and cannot initiate transactions from your wallet without your authorization. Except for gasless launches, which are sent from a Ponkr operated wallet with your chosen fee recipient, every transaction is prepared by the Service and signed by you.</p>
+        <p>Kekr does not take custody of your digital assets and cannot initiate transactions from your wallet without your authorization. Except for gasless launches, which are sent from a Kekr operated wallet with your chosen fee recipient, every transaction is prepared by the Service and signed by you.</p>
         <p>Blockchain transactions are irreversible. Once a transaction is confirmed we cannot cancel, reverse or refund it. You are solely responsible for reviewing the details your wallet displays before you sign, including amounts, recipients and network fees.</p>
       </section>
 
@@ -103,19 +103,19 @@ export default function Terms() {
 
       <section id="launches">
         <h2>7. Token launches</h2>
-        <p>Launching a token through Ponkr deploys it through independent launchpad smart contracts. By launching a token you confirm that:</p>
+        <p>Launching a token through Kekr deploys it through independent launchpad smart contracts. By launching a token you confirm that:</p>
         <ul>
           <li>you have the right to use the name, ticker, logo, description and links you provide;</li>
           <li>the token does not impersonate any person, brand or project, and is not designed to mislead buyers;</li>
           <li>the token is not offered as an investment, a security, a share of profits or a promise of returns, and you will not market it as such;</li>
           <li>you are solely responsible for the token, its community and any statements you make about it.</li>
         </ul>
-        <p>Token parameters such as supply, fee recipient and creator tax are fixed by the smart contracts at launch and cannot be changed by Ponkr. We may hide tokens from our interface, including tokens that appear to breach these Terms, without affecting their existence onchain.</p>
+        <p>Token parameters such as supply, fee recipient and creator tax are fixed by the smart contracts at launch and cannot be changed by Kekr. We may hide tokens from our interface, including tokens that appear to breach these Terms, without affecting their existence onchain.</p>
       </section>
 
       <section id="club">
         <h2>8. Club membership</h2>
-        <p>Club membership is determined by the balance of the official Ponkr token held in the wallet you sign in with. Club unlocks launching, higher usage limits and early access to features. Holding the token does not grant any ownership, equity, governance, dividend or profit right in Ponkr. We may change the membership threshold or benefits with notice in the Service.</p>
+        <p>Club membership is determined by the balance of the official Kekr token held in the wallet you sign in with. Club unlocks launching, higher usage limits and early access to features. Holding the token does not grant any ownership, equity, governance, dividend or profit right in Kekr. We may change the membership threshold or benefits with notice in the Service.</p>
       </section>
 
       <section id="fees">
@@ -126,7 +126,7 @@ export default function Terms() {
 
       <section id="api">
         <h2>10. API and developer tools</h2>
-        <p>Use of the API, CLI and related tools is subject to these Terms and to published rate limits. You must keep API keys confidential, must not attempt to exceed or circumvent limits, and must not use the API to build a service that misrepresents its connection to Ponkr. We may revoke keys that are abused.</p>
+        <p>Use of the API, CLI and related tools is subject to these Terms and to published rate limits. You must keep API keys confidential, must not attempt to exceed or circumvent limits, and must not use the API to build a service that misrepresents its connection to Kekr. We may revoke keys that are abused.</p>
       </section>
 
       <section id="conduct">
@@ -144,7 +144,7 @@ export default function Terms() {
 
       <section id="content">
         <h2>12. Content and intellectual property</h2>
-        <p>The Service, including its software, design, text, graphics and the Ponkr name and mascot, is owned by Ponkr or its licensors and protected by intellectual property laws. We grant you a limited, revocable, non exclusive, non transferable license to use the Service for its intended purpose.</p>
+        <p>The Service, including its software, design, text, graphics and the Kekr name and mascot, is owned by Kekr or its licensors and protected by intellectual property laws. We grant you a limited, revocable, non exclusive, non transferable license to use the Service for its intended purpose.</p>
         <p>You keep ownership of content you submit, such as token names, logos and descriptions. You grant us a worldwide, royalty free license to host, display and distribute that content as needed to operate and promote the Service. Content written to the blockchain or IPFS is public and permanent and cannot be deleted by us.</p>
       </section>
 
@@ -174,12 +174,12 @@ export default function Terms() {
 
       <section id="liability">
         <h2>16. Limitation of liability</h2>
-        <p>To the maximum extent permitted by law, Ponkr and its contributors, affiliates and service providers will not be liable for any indirect, incidental, special, consequential or punitive damages, or for any loss of profits, revenue, data, goodwill or digital assets, arising from or related to your use of the Service. Our total liability for any claim will not exceed the greater of one hundred US dollars or the amount you paid us directly for the Service in the twelve months before the claim.</p>
+        <p>To the maximum extent permitted by law, Kekr and its contributors, affiliates and service providers will not be liable for any indirect, incidental, special, consequential or punitive damages, or for any loss of profits, revenue, data, goodwill or digital assets, arising from or related to your use of the Service. Our total liability for any claim will not exceed the greater of one hundred US dollars or the amount you paid us directly for the Service in the twelve months before the claim.</p>
       </section>
 
       <section id="indemnity">
         <h2>17. Indemnification</h2>
-        <p>You agree to indemnify and hold harmless Ponkr and its contributors from any claims, losses, liabilities and expenses, including reasonable legal fees, arising from your use of the Service, the tokens you launch, your content, or your breach of these Terms or of any law.</p>
+        <p>You agree to indemnify and hold harmless Kekr and its contributors from any claims, losses, liabilities and expenses, including reasonable legal fees, arising from your use of the Service, the tokens you launch, your content, or your breach of these Terms or of any law.</p>
       </section>
 
       <section id="termination">
@@ -194,12 +194,12 @@ export default function Terms() {
 
       <section id="law">
         <h2>20. Governing law and disputes</h2>
-        <p>These Terms are governed by the laws of the jurisdiction in which Ponkr is established, without regard to conflict of law rules. Before starting any formal proceeding, you agree to contact us and try to resolve the dispute informally for at least thirty days. To the extent permitted by law, disputes will be resolved on an individual basis and not as part of a class or representative action.</p>
+        <p>These Terms are governed by the laws of the jurisdiction in which Kekr is established, without regard to conflict of law rules. Before starting any formal proceeding, you agree to contact us and try to resolve the dispute informally for at least thirty days. To the extent permitted by law, disputes will be resolved on an individual basis and not as part of a class or representative action.</p>
       </section>
 
       <section id="general">
         <h2>21. General</h2>
-        <p>These Terms are the entire agreement between you and Ponkr regarding the Service. If any provision is found unenforceable, the rest remains in effect. Our failure to enforce a provision is not a waiver. You may not assign these Terms without our consent; we may assign them in connection with a merger, acquisition or sale of assets.</p>
+        <p>These Terms are the entire agreement between you and Kekr regarding the Service. If any provision is found unenforceable, the rest remains in effect. Our failure to enforce a provision is not a waiver. You may not assign these Terms without our consent; we may assign them in connection with a merger, acquisition or sale of assets.</p>
       </section>
 
       <section id="contact">

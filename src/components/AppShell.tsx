@@ -46,7 +46,7 @@ const SECTIONS: Section[] = [
     items: [
       { href: "/club", label: "Club", icon: Gem },
       { href: `https://t.me/${BRAND.telegramBot}`, label: "Telegram bot", icon: Send, external: true },
-      { href: `https://x.com/${BRAND.twitter}`, label: "Ponkr on X", icon: X, external: true },
+      { href: `https://x.com/${BRAND.twitter}`, label: "Kekr on X", icon: X, external: true },
     ],
   },
   {

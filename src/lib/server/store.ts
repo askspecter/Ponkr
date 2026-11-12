@@ -66,7 +66,7 @@ const PREFIX = "ponkr:";
 export const kvDurable = () => Boolean(R_URL && R_TOKEN);
 
 if (process.env.VERCEL && !kvDurable()) {
-  console.warn("[ponkr] No Redis configured: API keys, jobs and limits will not persist on Vercel.");
+  console.warn("[kekr] No Redis configured: API keys, jobs and limits will not persist on Vercel.");
 }
 
 async function redis<T = unknown>(cmd: (string | number)[]): Promise<T> {

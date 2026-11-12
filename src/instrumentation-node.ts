@@ -10,9 +10,9 @@ if (!process.env.DISABLE_WARMUP) {
       await listTokens({ sort: "mcap", limit: 1 });
       setInterval(() => void sync({ wait: false }), 15_000);
       setInterval(() => void listTokens({ sort: "mcap", limit: 1 }).catch(() => {}), 60_000);
-      console.log("[ponkr] index warm");
+      console.log("[kekr] index warm");
     } catch (e) {
-      console.error("[ponkr] warmup failed", e);
+      console.error("[kekr] warmup failed", e);
     }
   }, 1000);
 }

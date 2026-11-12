@@ -9,7 +9,7 @@ const body = Inter_Tight({ variable: "--font-body", subsets: ["latin"] });
 const mono = IBM_Plex_Mono({ variable: "--font-mono", subsets: ["latin"], weight: ["400", "500", "600"] });
 
 export const metadata: Metadata = {
-  title: "Ponkr | AI trading agent and token launchpad",
+  title: "Kekr | AI trading agent and token launchpad",
   description: "Chat to trade, research and launch tokens on Robinhood Chain. Creators earn fees on every trade.",
   icons: { icon: "/icon.svg" },
 };

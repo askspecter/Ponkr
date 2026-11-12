@@ -371,20 +371,20 @@ function Quickstart() {
       <ol>
         <li>Create an API key on the <Link href="/api-keys">API keys</Link> page.</li>
         <li>Add credits on the Credits tab.</li>
-        <li>Point any OpenAI or Anthropic SDK at the Ponkr base URL and use a model id from the Models tab.</li>
+        <li>Point any OpenAI or Anthropic SDK at the Kekr base URL and use a model id from the Models tab.</li>
       </ol>
       <div className="table-wrap">
         <table>
           <thead><tr><th>Format</th><th>Base URL</th></tr></thead>
           <tbody>
-            <tr><td>OpenAI</td><td><code>{"<your Ponkr domain>/api/llm/v1"}</code></td></tr>
-            <tr><td>Anthropic</td><td><code>{"<your Ponkr domain>/api/llm"}</code></td></tr>
+            <tr><td>OpenAI</td><td><code>{"<your Kekr domain>/api/llm/v1"}</code></td></tr>
+            <tr><td>Anthropic</td><td><code>{"<your Kekr domain>/api/llm"}</code></td></tr>
           </tbody>
         </table>
       </div>
       <h3>curl</h3>
       <Code>{`curl {{HOST}}/api/llm/v1/chat/completions \\
-  -H "Authorization: Bearer $PONKR_API_KEY" \\
+  -H "Authorization: Bearer $KEKR_API_KEY" \\
   -H "content-type: application/json" \\
   -d '{
     "model": "claude-sonnet-5.5",
@@ -395,7 +395,7 @@ function Quickstart() {
 
 const client = new OpenAI({
   baseURL: "{{HOST}}/api/llm/v1",
-  apiKey: process.env.PONKR_API_KEY,
+  apiKey: process.env.KEKR_API_KEY,
 });
 
 const res = await client.chat.completions.create({
@@ -406,7 +406,7 @@ console.log(res.choices[0].message.content);`}</Code>
       <h3>Anthropic SDK</h3>
       <Code lang="python">{`from anthropic import Anthropic
 
-client = Anthropic(base_url="{{HOST}}/api/llm", api_key=PONKR_API_KEY)
+client = Anthropic(base_url="{{HOST}}/api/llm", api_key=KEKR_API_KEY)
 
 msg = client.messages.create(
     model="claude-opus-5.5",

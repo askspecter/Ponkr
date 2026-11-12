@@ -44,7 +44,7 @@ export function TokenCard({ t }: { t: TokenView }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="truncate font-semibold">{t.name}</span>
-            {t.viaApp && <span className="tag bg-accent text-accent-ink">Ponkr</span>}
+            {t.viaApp && <span className="tag bg-accent text-accent-ink">Kekr</span>}
           </div>
           <div className="mono text-xs text-muted">${t.symbol} · {timeAgo(t.timestamp)}</div>
           <div className="mono mt-0.5 text-[11px] text-muted">by {shortAddr(t.creator)}</div>

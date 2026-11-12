@@ -1,7 +1,7 @@
 import { PageHeader, PageShell } from "@/components/Page";
 import { LaunchForm } from "./LaunchForm";
 
-export const metadata = { title: "Launch a token | Ponkr" };
+export const metadata = { title: "Launch a token | Kekr" };
 
 export default function Page() {
   return (

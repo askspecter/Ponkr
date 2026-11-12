@@ -19,7 +19,7 @@ export function HeroPrompt() {
     <div className="w-full max-w-3xl">
       <form onSubmit={(e) => { e.preventDefault(); if (q.trim()) go(q); }} className="card-hard flex items-center gap-2 p-2">
         <span className="mono pl-3 text-acid">$</span>
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ask ponkr anything" className="mono flex-1 bg-transparent px-2 py-3 text-base outline-none placeholder:text-muted" />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ask kekr anything" className="mono flex-1 bg-transparent px-2 py-3 text-base outline-none placeholder:text-muted" />
         <button className="btn btn-primary h-11 w-11 p-0" aria-label="Send"><ArrowUp size={18} /></button>
       </form>
       <div className="mt-4 flex flex-wrap gap-2">

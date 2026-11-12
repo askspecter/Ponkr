@@ -7,8 +7,8 @@ import { rpc } from "./rpc";
 import { kvGet, kvIncr, kvIncrBy, kvMGetNumbers, kvSAdd, kvSIsMember, kvSMembers, kvSet } from "./store";
 
 /**
- * Ponkr LLM Gateway: an OpenAI and Anthropic compatible marketplace in front of several upstream
- * model routers. Users authenticate with Ponkr API keys and pay from a prepaid USD balance.
+ * Kekr LLM Gateway: an OpenAI and Anthropic compatible marketplace in front of several upstream
+ * model routers. Users authenticate with Kekr API keys and pay from a prepaid USD balance.
  * Amounts are stored as integer micro USD (1e-6 USD).
  */
 
@@ -42,7 +42,7 @@ const UPSTREAMS: Record<RouteId, Upstream> = {
     id: "market",
     base: (process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api").replace(/\/$/, ""),
     key: process.env.OPENROUTER_API_KEY || "",
-    auth: (k) => ({ authorization: `Bearer ${k}`, "x-title": "Ponkr", "http-referer": process.env.NEXT_PUBLIC_SITE_URL || "https://ponkr.app" }),
+    auth: (k) => ({ authorization: `Bearer ${k}`, "x-title": "Kekr", "http-referer": process.env.NEXT_PUBLIC_SITE_URL || "https://kekr.app" }),
     publicCatalog: true,
   },
 };
@@ -65,7 +65,7 @@ export interface ModelInfo {
   modalities: string[];
   formats: Format[];
   route: RouteId;
-  /** USD per 1M tokens, Ponkr price (upstream price times markup). */
+  /** USD per 1M tokens, Kekr price (upstream price times markup). */
   input: number;
   output: number;
   cacheRead?: number;
@@ -244,7 +244,7 @@ export async function creditTopUp(txHash: Hex, wallets: Address[]) {
   const client = rpc();
   const [tx, receipt] = await Promise.all([client.getTransaction({ hash: txHash }), client.waitForTransactionReceipt({ hash: txHash, timeout: 60_000 })]);
   if (receipt.status !== "success") throw new Error("The payment transaction failed.");
-  if (!tx.to || tx.to.toLowerCase() !== LLM.treasury.toLowerCase()) throw new Error("The payment was not sent to the Ponkr treasury.");
+  if (!tx.to || tx.to.toLowerCase() !== LLM.treasury.toLowerCase()) throw new Error("The payment was not sent to the Kekr treasury.");
   const from = wallets.find((w) => w.toLowerCase() === tx.from.toLowerCase());
   if (!from) throw new Error("The payment must come from a wallet linked to your account.");
   const usd = Number(formatEther(tx.value)) * (await ethUsd());
@@ -332,7 +332,7 @@ function usageFrom(obj: Raw | undefined): Partial<Usage> {
 export async function proxy(req: Request, format: Format) {
   if (!gatewayEnabled()) return errorResponse(format, 503, "unavailable", "The LLM Gateway is not available yet.");
   const key = await resolveApiKey(req);
-  if (!key) return errorResponse(format, 401, "authentication_error", "Missing or invalid Ponkr API key.");
+  if (!key) return errorResponse(format, 401, "authentication_error", "Missing or invalid Kekr API key.");
 
   const minute = Math.floor(Date.now() / 60_000);
   if ((await kvIncr(`llm:rpm:${key.id}:${minute}`, 120)) > RPM) {

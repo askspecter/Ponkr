@@ -3,7 +3,7 @@ import { handle, json } from "@/lib/server/http";
 
 export const dynamic = "force-dynamic";
 
-/** Public model catalog with Ponkr prices (USD per 1M tokens). */
+/** Public model catalog with Kekr prices (USD per 1M tokens). */
 export async function GET() {
   return handle(async () => {
     const models = await listModels();

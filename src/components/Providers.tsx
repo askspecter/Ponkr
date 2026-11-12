@@ -85,7 +85,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           theme: "dark",
           accentColor: "#4d6bff",
           logo: "/icon.svg",
-          landingHeader: "Sign in to Ponkr",
+          landingHeader: "Sign in to Kekr",
           showWalletLoginFirst: false,
         },
         embeddedWallets: { ethereum: { createOnLogin: "users-without-wallets" } },

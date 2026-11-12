@@ -23,7 +23,7 @@ export default function Home() {
                 <span className="bg-acid px-2 text-black">Type to launch.</span>
               </h1>
               <p className="mt-5 max-w-xl text-muted md:text-lg">
-                Ponkr is an onchain agent that researches, buys, sells and deploys tokens for you. Creators keep earning on every trade.
+                Kekr is an onchain agent that researches, buys, sells and deploys tokens for you. Creators keep earning on every trade.
               </p>
             </div>
             <Logo className="hidden h-40 w-40 md:block" />

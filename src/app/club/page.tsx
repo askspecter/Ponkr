@@ -24,9 +24,9 @@ export default function Club() {
     <div className="mx-auto max-w-5xl px-4 py-12">
       <div className="text-center">
         <Logo className="mx-auto h-14 w-14" />
-        <h1 className="display mt-4 text-4xl font-bold md:text-5xl">Ponkr Club</h1>
+        <h1 className="display mt-4 text-4xl font-bold md:text-5xl">Kekr Club</h1>
         <p className="mx-auto mt-2 max-w-xl text-muted">
-          Hold <b className="text-fg">{need.toLocaleString("en-US")} ${CLUB.symbol}</b> and you are in. Club members are the only ones who can launch tokens on Ponkr.
+          Hold <b className="text-fg">{need.toLocaleString("en-US")} ${CLUB.symbol}</b> and you are in. Club members are the only ones who can launch tokens on Kekr.
         </p>
       </div>
 

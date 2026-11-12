@@ -1,8 +1,8 @@
 {
-  "name": "ponkr",
+  "name": "kekr",
   "version": "0.1.0",
-  "description": "Ponkr CLI — launch and research tokens from your terminal",
+  "description": "Kekr CLI — launch and research tokens from your terminal",
   "type": "module",
-  "bin": { "ponkr": "./ponkr.mjs" },
+  "bin": { "kekr": "./kekr.mjs" },
   "engines": { "node": ">=18" }
 }

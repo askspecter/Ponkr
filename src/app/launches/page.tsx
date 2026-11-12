@@ -11,7 +11,7 @@ const tabs = [
   ["mcap", "Market cap"],
   ["progress", "Graduating"],
   ["graduated", "Graduated"],
-  ["app", "Launched on Ponkr"],
+  ["app", "Launched on Kekr"],
 ] as const;
 type Tab = (typeof tabs)[number][0];
 

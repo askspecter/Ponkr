@@ -1,5 +1,5 @@
 /**
- * Ponkr mascot: a small pixel courier robot with a visor and a coin antenna.
+ * Kekr mascot: a small pixel courier robot with a visor and a coin antenna.
  * Drawn on a 16x16 grid so it stays crisp at any size.
  */
 const ROWS = [
