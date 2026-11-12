@@ -186,7 +186,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-bg/90 px-4 backdrop-blur lg:hidden">
         <button onClick={() => setOpen(true)} aria-label="Open menu" className="rounded-md border border-line p-2"><Menu size={18} /></button>
-        <Link href="/" className="flex items-center gap-2"><Logo className="h-7 w-7" /><span className="display text-lg font-bold">{BRAND.name}</span></Link>
+        <span className="display truncate text-lg font-bold">{pageTitle(path)}</span>
         <Link href="/launch" aria-label="Launch a token" className="btn btn-acid ml-auto px-3 py-1.5"><Rocket size={16} /></Link>
       </header>
 
@@ -205,4 +205,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </main>
     </div>
   );
+}
+
+const EXTRA_TITLES: [string, string][] = [["/token/", "Token"], ["/trade", "Trade"], ["/docs", "Docs"]];
+
+/** Title shown in the phone top bar, like the page you are on. */
+function pageTitle(path: string) {
+  if (path === "/") return "Home";
+  for (const s of SECTIONS) for (const i of s.items) if (!i.external && i.href === path) return i.label;
+  for (const [p, t] of EXTRA_TITLES) if (path.startsWith(p)) return t;
+  return "";
 }
