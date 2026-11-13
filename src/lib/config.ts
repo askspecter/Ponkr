@@ -70,7 +70,7 @@ export const DEFAULT_LAUNCH_CONFIG_ID = 0n;
  * so the team can launch the official token itself.
  */
 export const CLUB = {
-  token: (process.env.NEXT_PUBLIC_OFFICIAL_TOKEN_ADDRESS || "") as Address | "",
+  token: (process.env.NEXT_PUBLIC_OFFICIAL_TOKEN_ADDRESS || "0xacF1d42DCD5F48C724bE493Bd7cC14b671D1E788") as Address | "",
   symbol: process.env.NEXT_PUBLIC_OFFICIAL_TOKEN_SYMBOL || "KEKR",
   minHold: Number(process.env.NEXT_PUBLIC_CLUB_MIN_HOLD || 1_000_000),
   freeMessagesPerDay: Number(process.env.FREE_MESSAGES_PER_DAY || 5),

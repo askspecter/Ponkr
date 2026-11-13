@@ -41,7 +41,7 @@ Variabel penting (`.env.example`):
   Di dashboard Privy aktifkan metode login tersebut dan tambahkan domain Anda. Tanpa app id, app memakai wallet browser (untuk dev lokal).
 - `PINATA_JWT` : upload logo ke IPFS.
 - `DEPLOYER_PRIVATE_KEY` : wallet platform untuk launch gas-free (isi sedikit ETH di Robinhood Chain). Kosongkan untuk mematikan.
-- `NEXT_PUBLIC_OFFICIAL_TOKEN_ADDRESS`, `NEXT_PUBLIC_OFFICIAL_TOKEN_SYMBOL`, `NEXT_PUBLIC_CLUB_MIN_HOLD` : token resmi dan syarat Club (default 1.000.000).
+- `NEXT_PUBLIC_OFFICIAL_TOKEN_ADDRESS`, `NEXT_PUBLIC_OFFICIAL_TOKEN_SYMBOL`, `NEXT_PUBLIC_CLUB_MIN_HOLD` : token resmi dan syarat Club. Default sudah $KEKR `0xacF1d42DCD5F48C724bE493Bd7cC14b671D1E788` dan 1.000.000, jadi tidak perlu diisi.
   Selama alamat token resmi belum diisi, hanya wallet di `CLUB_ALLOWLIST` yang dianggap Club, supaya tim bisa me-launch token resmi itu sendiri.
 - Catatan: pembatasan ini berlaku di semua jalur Kekr (web, agen, API, X). Kontrak launchpad di chain sendiri tetap terbuka,
   jadi orang yang memanggil kontrak langsung tanpa Kekr tidak bisa dicegah, dan token itu tidak akan bertanda "Kekr".
