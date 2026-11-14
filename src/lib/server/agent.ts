@@ -1,4 +1,5 @@
 import "server-only";
+import { addRule, autopilotEnabled, autopilotOverview, autopilotWallet, cancelRule, describeRule } from "./autopilot";
 import Anthropic from "@anthropic-ai/sdk";
 import { formatUnits, getAddress, isAddress, parseEther, parseUnits, type Address } from "viem";
 import { BRAND, CLUB, EXPLORER } from "../config";
@@ -152,6 +153,27 @@ const tools: Anthropic.Tool[] = [
     name: "get_portfolio",
     description: "Get ETH balance and launchpad token holdings with USD values for an address (defaults to the user's wallet).",
     input_schema: { type: "object", properties: { address: { type: "string" } }, required: [] },
+  },
+  {
+    name: "autopilot",
+    description: "Kekr Autopilot runs trades for the user automatically from their separate Autopilot wallet, within a daily ETH limit. action=list shows the Autopilot wallet, balance and rules. action=create adds a rule: kind=buy (token, eth_amount, metric, op, value), kind=sell (token, percent, metric, op, value) or kind=follow (creator, eth_amount, max_buys: buy every token this creator launches). metric is mcapUsd, priceUsd or progress (curve %, 0 to 100); op is lte (falls to) or gte (reaches). action=cancel with rule_id. Before creating, restate the rule in one line. Setup and funding happen at /autopilot.",
+    input_schema: {
+      type: "object",
+      properties: {
+        action: { type: "string", enum: ["list", "create", "cancel"] },
+        kind: { type: "string", enum: ["buy", "sell", "follow"] },
+        token: { type: "string" },
+        creator: { type: "string" },
+        eth_amount: { type: "number" },
+        percent: { type: "number" },
+        max_buys: { type: "number" },
+        metric: { type: "string", enum: ["mcapUsd", "priceUsd", "progress"] },
+        op: { type: "string", enum: ["lte", "gte"] },
+        value: { type: "number" },
+        rule_id: { type: "string" },
+      },
+      required: ["action"],
+    },
   },
   {
     name: "creator_fees",
@@ -321,6 +343,19 @@ async function runTool(name: string, input: Record<string, unknown>, ctx: AgentC
         positions: p.positions.slice(0, 25).map((x) => ({ symbol: x.token.symbol, token: x.token.token, amount: fmtNum(x.amount), valueUsd: Math.round(x.valueUsd * 100) / 100, graduated: x.token.live.graduated })),
       };
     }
+    case "autopilot": {
+      const owner = ctx.wallet && ctx.verifiedWallets?.some((w) => w.toLowerCase() === ctx.wallet!.toLowerCase()) ? ctx.wallet : undefined;
+      if (!owner) return { error: "Autopilot needs a signed in wallet in the web app." };
+      if (!autopilotEnabled()) return { error: "Autopilot is not available yet." };
+      if (input.action === "list") {
+        const o = await autopilotOverview(owner);
+        return { autopilotWallet: o.address ?? "not set up (go to /autopilot)", ethBalance: o.eth, dailyLimitEth: o.settings.dailyLimitEth, spentTodayEth: o.spentToday, paused: o.settings.paused, rules: o.rules.slice(0, 15).map((r) => ({ id: r.id, status: r.status, rule: r.label, lastError: r.lastError })) };
+      }
+      if (!(await autopilotWallet(owner))) return { error: "The user has no Autopilot wallet yet. Ask them to set it up and fund it at /autopilot." };
+      if (input.action === "cancel") return { cancelled: describeRule(await cancelRule(owner, String(input.rule_id))) };
+      const r = await addRule(owner, { kind: input.kind, token: input.token, creator: input.creator, ethAmount: input.eth_amount, percent: input.percent, maxBuys: input.max_buys, metric: input.metric, op: input.op, value: input.value });
+      return { created: describeRule(r), id: r.id, note: "Runs automatically about every minute from the Autopilot wallet. Manage it at /autopilot." };
+    }
     case "creator_fees": {
       const addr = (input.address as string) || ctx.wallet;
       if (!addr || !isAddress(addr)) return { error: "No wallet connected and no address given." };
@@ -364,6 +399,7 @@ Rules:
 - Be concise: short sentences, numbers formatted (e.g. $12.3K), tickers with $.
 - Never use em dashes, en dashes or hyphens as punctuation. Use commas, periods or colons instead.
 - Free plan: ${CLUB.freeMessagesPerDay} messages/day. ${BRAND.name} Club removes the limit.
+- Kekr Autopilot (the autopilot tool, page /autopilot) can buy or sell automatically when a market cap, price or curve progress target is hit, or buy every launch from a creator, using a separate Autopilot wallet the user funds, within a daily limit.
 - Only Club members can launch tokens. Club means holding at least ${CLUB.minHold.toLocaleString("en-US")} $${CLUB.symbol}. If a launch is refused for this, explain it and point to /club.
 
 Channel: ${ctx.channel}. ${ctx.wallet ? `User wallet: ${ctx.wallet}.` : "No wallet connected."}${

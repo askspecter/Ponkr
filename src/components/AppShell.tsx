@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   BarChart3, BookOpen, ChevronDown, ChevronRight, Coins, Copy, FileText, Gem, KeyRound, LifeBuoy, LogOut,
-  Menu, MessageSquare, Plus, Rocket, Search, Shield, Sparkles, Terminal, Trophy, Wallet, X, CandlestickChart,
+  Menu, MessageSquare, Plus, Rocket, Search, Shield, Sparkles, Terminal, Trophy, Wallet, X, CandlestickChart, Bot,
 } from "lucide-react";
 import { BRAND } from "@/lib/config";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,6 +20,7 @@ const SECTIONS: Section[] = [
     items: [
       { href: "/chat", label: "Chat", icon: MessageSquare },
       { href: "/portfolio", label: "Wallet", icon: Wallet },
+      { href: "/autopilot", label: "Autopilot", icon: Bot },
       { href: "/trade", label: "Trade", icon: CandlestickChart },
     ],
   },

@@ -2,7 +2,7 @@ import "server-only";
 import { createPublicClient, http, toHex, type Address, type Hex, type PublicClient } from "viem";
 import { RPC_URL, robinhoodChain } from "../config";
 
-const SERVER_RPC = process.env.RPC_URL || RPC_URL;
+export const SERVER_RPC = process.env.RPC_URL || RPC_URL;
 
 let client: PublicClient | undefined;
 
